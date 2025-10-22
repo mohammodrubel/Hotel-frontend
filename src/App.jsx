@@ -1,12 +1,13 @@
-import { Button } from 'antd'
-import React from 'react'
+import "./App.css";
+import { Button } from "antd";
 
 function App() {
   return (
-    <div>
-      <Button>hello world</Button>
-    </div>
-  )
+    <>
+      <h2 className="text-center">Hello world</h2>
+      <Button type="primary">Hello world</Button>
+    </>
+  );
 }
 
-export default App
+export default App;
