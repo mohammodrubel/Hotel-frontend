@@ -1,5 +1,19 @@
 import React, { useState } from "react";
-import { Select, Upload, Switch, Button, Form, Input, InputNumber } from "antd";
+import {
+  Select,
+  Upload,
+  Switch,
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Spin,
+  message,
+} from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+import { useGetAllHotelQuery } from "../redux/features/hotel/hotelApi";
+import { useAddNewRoomMutation } from "../redux/features/room/roomApi";
+import { toast } from "sonner";
 
 const roomTypeOptions = [
   { label: "Single", value: "SINGLE" },
@@ -10,6 +24,23 @@ const roomTypeOptions = [
 
 function DashboardRooms() {
   const [fileList, setFileList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [addNewRoom] = useAddNewRoomMutation();
+
+  // Hotel data query with loading state
+  const { data, isLoading: hotelsLoading } = useGetAllHotelQuery([
+    {
+      name: "limit",
+      value: 1000,
+    },
+    {
+      name: "page",
+      value: 1,
+    },
+  ]);
+
+  const hotelOptions =
+    data?.data?.map((item) => ({ label: item?.name, value: item?.id })) || [];
 
   const onChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
@@ -28,19 +59,53 @@ function DashboardRooms() {
     imgWindow?.document.write(image.outerHTML);
   };
 
-  const handleSubmit = (values) => {
-    const payload = {
-      hotelId: "4b3fb114-f005-4874-990d-f57b6710d196",
-      type: values.type,
-      pricePerNight: values.pricePerNight,
-      capacity: values.capacity,
-      available: values.available,
-      amenities: values.amenities, // array of strings from tags input
-      images: fileList.map((f) => f.url || f.originFileObj),
-    };
+const handleSubmit = async (values) => {
+  setLoading(true);
 
-    console.log("Room Payload:", payload);
+  const formData = new FormData();
+
+  const payload = {
+    hotelId: values.hotelId,
+    type: values.type,
+    pricePerNight: values.pricePerNight,
+    capacity: values.capacity,
+    available: values.available,
+    amenities: Array.isArray(values.amenities)
+      ? values.amenities
+      : values.amenities.split(",").map((item) => item.trim()), // 👈 handles "rubel, hasan" input
   };
+
+  formData.append("data", JSON.stringify(payload));
+
+  fileList.forEach((file) => {
+    formData.append("file", file.originFileObj);
+  });
+
+  try {
+    const response = await addNewRoom(formData).unwrap();
+    if(response.success){
+      toast.success(response?.message)
+    }
+    form.resetFields();
+    setFileList([]);
+  } catch (error) {
+    if(error?.data?.message){
+      toast.error(error?.data?.message)
+    }
+    console.log()
+  } 
+};
+
+  const [form] = Form.useForm();
+
+  // Show loading spinner when hotels are loading
+  if (hotelsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-10 px-4">
@@ -49,104 +114,166 @@ function DashboardRooms() {
           Add New Room
         </h2>
 
-        <Form layout="vertical" onFinish={handleSubmit} className="space-y-4">
-          <div className="flex justify-between gap-2">
-            {/* Available */}
+        <Spin spinning={loading} tip="Adding room...">
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            className="space-y-4"
+            initialValues={{
+              available: true,
+              capacity: 1,
+              pricePerNight: 0,
+            }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Available */}
+              <Form.Item
+                label="Available"
+                name="available"
+                valuePropName="checked"
+                className="mb-0"
+              >
+                <Switch />
+              </Form.Item>
+
+              {/* Price Per Night */}
+              <Form.Item
+                label="Price Per Night"
+                name="pricePerNight"
+                rules={[{ required: true, message: "Enter price per night" }]}
+                className="mb-0"
+              >
+                <InputNumber
+                  min={0}
+                  className="!w-full"
+                  placeholder="Enter price per night"
+                  prefix="$"
+                />
+              </Form.Item>
+
+              {/* Capacity */}
+              <Form.Item
+                label="Capacity"
+                name="capacity"
+                rules={[{ required: true, message: "Enter room capacity" }]}
+                className="mb-0"
+              >
+                <InputNumber
+                  min={1}
+                  max={10}
+                  className="!w-full"
+                  placeholder="Enter room capacity"
+                />
+              </Form.Item>
+            </div>
+
+            {/* Location */}
             <Form.Item
-              label="Available"
-              name="available"
-              valuePropName="checked"
-              initialValue={true}
+              label="Location"
+              name="location"
+              rules={[
+                { required: true, message: "Enter room location/address" },
+              ]}
             >
-              <Switch />
+              <Input placeholder="Enter room location/address" />
             </Form.Item>
 
-            {/* Price Per Night */}
+            {/* Hotel Selection */}
             <Form.Item
-              label="Price Per Night"
-              name="pricePerNight"
-              rules={[{ required: true, message: "Enter price per night" }]}
+              label="Select Hotel"
+              name="hotelId"
+              rules={[{ required: true, message: "Please select a hotel" }]}
             >
-              <InputNumber
-                min={0}
-                className="!w-full"
-                placeholder="Enter price per night"
+              <Select
+                className="w-full"
+                options={hotelOptions}
+                placeholder="Select Hotel"
+                loading={hotelsLoading}
+                showSearch
+                filterOption={(input, option) =>
+                  option.label.toLowerCase().includes(input.toLowerCase())
+                }
               />
             </Form.Item>
 
-            {/* Capacity */}
+            {/* Room Type */}
             <Form.Item
-              label="Capacity"
-              name="capacity"
-              rules={[{ required: true, message: "Enter room capacity" }]}
+              label="Room Type"
+              name="type"
+              rules={[{ required: true, message: "Please select a room type" }]}
             >
-              <InputNumber
-                min={1}
-                className="!w-full"
-                placeholder="Enter room capacity"
+              <Select
+                className="w-full"
+                options={roomTypeOptions}
+                placeholder="Select room type"
               />
             </Form.Item>
-          </div>
-          {/* Hotel  */}
-          <Form.Item
-            label="Select  Hotel"
-            name="type"
-            rules={[{ required: true, message: "Please select a Hotel type" }]}
-          >
-            <Select
-              className="w-full"
-              options={roomTypeOptions}
-              placeholder="Select Hotel "
-            />
-          </Form.Item>
-          {/* Room Type */}
-          <Form.Item
-            label="Room Type"
-            name="type"
-            rules={[{ required: true, message: "Please select a room type" }]}
-          >
-            <Select
-              className="w-full"
-              options={roomTypeOptions}
-              placeholder="Select room type"
-            />
-          </Form.Item>
 
-          {/* Amenities (Custom Tags Input) */}
-          <Form.Item
-            label="Amenities"
-            name="amenities"
-            rules={[{ required: true, message: "Enter amenities" }]}
-          >
-            <Select
-              mode="tags"
-              tokenSeparators={[","]}
-              placeholder="Type amenities and press Enter"
-              className="w-full"
-            />
-          </Form.Item>
-
-          {/* Upload Images */}
-          <Form.Item label="Upload Room Images">
-            <Upload
-              listType="picture-card"
-              fileList={fileList}
-              onChange={onChange}
-              onPreview={onPreview}
+            {/* Amenities */}
+            <Form.Item
+              label="Amenities"
+              name="amenities"
+              rules={[
+                { required: true, message: "Enter at least one amenity" },
+              ]}
+              tooltip="Type amenities and press Enter or comma to add multiple"
             >
-              {fileList.length < 3 && "+ Upload"}
-            </Upload>
-          </Form.Item>
+              <Select
+                mode="tags"
+                tokenSeparators={[","]}
+                placeholder="Type amenities and press Enter or comma"
+                className="w-full"
+              />
+            </Form.Item>
 
-          {/* Submit */}
-          <Button
-            type="primary"
-            htmlType="submit"
-            className="w-full py-2 text-base"
-          >
-            Submit Room
-          </Button>
-        </Form>
+            {/* Upload Images */}
+            <Form.Item
+              label="Upload Room Images"
+              rules={[
+                {
+                  required: true,
+                  validator: () => {
+                    if (fileList.length === 0) {
+                      return Promise.reject(
+                        new Error("Please upload at least one image")
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <Upload
+                listType="picture-card"
+                fileList={fileList}
+                onChange={onChange}
+                onPreview={onPreview}
+                beforeUpload={() => false} // Prevent auto upload
+                accept="image/*"
+                multiple
+              >
+                {fileList.length < 3 ? "+ Upload" : null}
+              </Upload>
+              <div className="text-xs text-gray-500 mt-1">
+                Upload up to 5 images (Recommended)
+              </div>
+            </Form.Item>
+
+            {/* Submit Button */}
+            <Form.Item className="mb-0">
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="w-full py-4 text-base font-semibold h-auto"
+                loading={loading}
+                disabled={loading}
+              >
+                {loading ? "Adding Room..." : "Add New Room"}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Spin>
       </div>
     </div>
   );
