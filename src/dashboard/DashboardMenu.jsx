@@ -1,21 +1,24 @@
 import {
   HomeOutlined,
-  UserOutlined,
-  SettingOutlined,
   ApartmentOutlined,
   FileAddOutlined,
+  EyeOutlined,
   AppstoreAddOutlined,
   TeamOutlined,
   BookOutlined,
-  PlusCircleOutlined,
-  EyeOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 
 export const menuItems = [
   {
-    key: "dashboard",
+    key: "/dashboard",
     icon: <HomeOutlined />,
     label: "Dashboard",
+  },
+  {
+    key: "/dashboard/users",
+    icon: <TeamOutlined />,
+    label: "Users",
   },
   {
     key: "rooms",
@@ -23,12 +26,12 @@ export const menuItems = [
     label: "Rooms",
     children: [
       {
-        key: "rooms-create",
+        key: "/dashboard/rooms/create",
         icon: <FileAddOutlined />,
         label: "Create Room",
       },
       {
-        key: "rooms-list",
+        key: "/dashboard/rooms",
         icon: <EyeOutlined />,
         label: "View Rooms",
       },
@@ -40,48 +43,37 @@ export const menuItems = [
     label: "Hotels",
     children: [
       {
-        key: "hotel-create",
-        icon: <PlusCircleOutlined />,
+        key: "/dashboard/hotels/create",
+        icon: <FileAddOutlined />,
         label: "Create Hotel",
       },
       {
-        key: "hotel-list",
+        key: "/dashboard/hotels",
         icon: <EyeOutlined />,
         label: "View Hotels",
       },
     ],
   },
-  {
-    key: "users",
-    icon: <TeamOutlined />,
-    label: "Users",
-    children: [
-      {
-        key: "user-list",
-        icon: <EyeOutlined />,
-        label: "All Users",
-      },
-    ],
-  },
+
   {
     key: "bookings",
     icon: <BookOutlined />,
     label: "Bookings",
     children: [
       {
-        key: "booking-create",
+        key: "/dashboard/bookings/create",
         icon: <FileAddOutlined />,
         label: "Create Booking",
       },
       {
-        key: "booking-list",
+        key: "/dashboard/bookings",
         icon: <EyeOutlined />,
         label: "View Bookings",
       },
     ],
   },
   {
-    key: "settings",
+    key: "/dashboard/settings",
     icon: <SettingOutlined />,
     label: "Settings",
   },

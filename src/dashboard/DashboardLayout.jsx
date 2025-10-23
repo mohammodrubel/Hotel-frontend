@@ -8,45 +8,44 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button, Avatar, Dropdown } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { menuItems } from "./DashboardMenu";
 
-const { Header, Sider, Content, Footer } = Layout;
+const { Header, Sider, Content } = Layout;
 
-const App = () => {
+const DashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Dropdown menu (user options)
   const menu = {
     items: [
       {
         key: "profile",
+        icon: <UserOutlined />,
         label: "Profile",
         onClick: () => navigate("/profile"),
       },
       {
         key: "logout",
+        icon: <LogoutOutlined />,
         label: "Logout",
         onClick: () => {
-        //   dispatch(logout());
+          // dispatch(logout());
           navigate("/login");
         },
-        // icon: <LogoutOutlined />,
       },
     ],
   };
 
   return (
     <Layout className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
       <Sider
         trigger={null}
         collapsible
         collapsed={collapsed}
-        className=" !bg-white shadow-sm border-0 h-screen"
+        className="!bg-white shadow-sm border-0 h-screen"
         width={230}
       >
         <div className="text-center py-4 font-bold text-xl">
@@ -56,20 +55,14 @@ const App = () => {
         <Menu
           theme="light"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          defaultSelectedKeys={["/dashboard"]}
           className="h-full border-r-0"
-          onClick={({ key }) => {
-            if (key === "1") navigate("/");
-            if (key === "2") navigate("/users");
-            if (key === "3") navigate("/settings");
-          }}
+          onClick={({ key }) => navigate(key)}
           items={menuItems}
         />
       </Sider>
 
-      {/* Main layout */}
       <Layout>
-        {/* Header */}
         <Header className="!bg-white shadow-sm flex items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <Button
@@ -91,13 +84,12 @@ const App = () => {
           </Dropdown>
         </Header>
 
-        {/* Content */}
         <Content className="m-6 p-6 bg-white rounded-lg shadow-sm min-h-[70vh]">
-          <h1 className="text-2xl font-bold mb-4 text-gray-700">Hello world</h1>
+          <Outlet/>
         </Content>
       </Layout>
     </Layout>
   );
 };
 
-export default App;
+export default DashboardLayout;
