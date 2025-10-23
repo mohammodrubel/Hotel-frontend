@@ -10,6 +10,7 @@ import {
 import { Layout, Menu, Button, Avatar, Dropdown } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { menuItems } from "./DashboardMenu";
 
 const { Header, Sider, Content, Footer } = Layout;
 
@@ -62,23 +63,7 @@ const App = () => {
             if (key === "2") navigate("/users");
             if (key === "3") navigate("/settings");
           }}
-          items={[
-            {
-              key: "1",
-              icon: <HomeOutlined />,
-              label: "Dashboard",
-            },
-            {
-              key: "2",
-              icon: <UserOutlined />,
-              label: "Users",
-            },
-            {
-              key: "3",
-              icon: <SettingOutlined />,
-              label: "Settings",
-            },
-          ]}
+          items={menuItems}
         />
       </Sider>
 
@@ -108,12 +93,8 @@ const App = () => {
 
         {/* Content */}
         <Content className="m-6 p-6 bg-white rounded-lg shadow-sm min-h-[70vh]">
-          <h1 className="text-2xl font-bold mb-4 text-gray-700">
-            Hello world
-          </h1>
-          
+          <h1 className="text-2xl font-bold mb-4 text-gray-700">Hello world</h1>
         </Content>
-
       </Layout>
     </Layout>
   );
