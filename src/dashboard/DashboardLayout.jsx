@@ -3,16 +3,70 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
-  HomeOutlined,
-  SettingOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button, Avatar, Dropdown } from "antd";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { menuItems } from "./DashboardMenu";
 
 const { Header, Sider, Content } = Layout;
+
+export const menuItems = [
+  {
+    key: "/dashboard",
+    label: "Dashboard",
+  },
+  {
+    key: "/dashboard/users",
+    label: "Users",
+  },
+  {
+    key: "rooms",
+    label: "Rooms",
+    children: [
+      {
+        key: "/dashboard/rooms/create",
+        label: "Create Room",
+      },
+      {
+        key: "/dashboard/rooms",
+        label: "View Rooms",
+      },
+    ],
+  },
+  {
+    key: "hotels",
+    label: "Hotels",
+    children: [
+      {
+        key: "/dashboard/hotels/create",
+        label: "Create Hotel",
+      },
+      {
+        key: "/dashboard/hotels",
+        label: "View Hotels",
+      },
+    ],
+  },
+  {
+    key: "bookings",
+    label: "Bookings",
+    children: [
+      {
+        key: "/dashboard/bookings/create",
+        label: "Create Booking",
+      },
+      {
+        key: "/dashboard/bookings",
+        label: "View Bookings",
+      },
+    ],
+  },
+  {
+    key: "/dashboard/settings",
+    label: "Settings",
+  },
+];
 
 const DashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -85,7 +139,7 @@ const DashboardLayout = () => {
         </Header>
 
         <Content className="m-6 p-6 bg-white rounded-lg shadow-sm min-h-[70vh]">
-          <Outlet/>
+          <Outlet />
         </Content>
       </Layout>
     </Layout>
