@@ -1,31 +1,50 @@
 import { baseApi } from "../../api/baseApi";
 
 export const roomApi = baseApi.injectEndpoints({
-    endpoints: (builder) => ({
-        addNewRoom: builder.mutation({
-            query: (data) => ({
-                url: `/room`,
-                method: "POST",
-                body: data,
-            }),
-        }),
-        getAllRooms: builder.query({
-            query: (args) => {
-                  const queryString = new URLSearchParams(
-                    args?.reduce((acc, { name, value }) => {
-                      if (value !== undefined && value !== null) {
-                        acc[name] = value;
-                      }
-                      return acc;
-                    }, {})
-                  ).toString();
-                return {
-                  url: `/room?${queryString}`,
-                  method: "GET",
-                };
-            },
-        }),
+  endpoints: (builder) => ({
+    addNewRoom: builder.mutation({
+      query: (data) => ({
+        url: `/room`,
+        method: "POST",
+        body: data,
+      }),
     }),
+    UpdateRoom: builder.mutation({
+      query: (data) => {
+        console.log(data)
+        return {
+          url: `/room/${data?.id}`,
+          method: "PUT",
+          body: data?.data,
+        };
+      },
+    }),
+    DeleteRoom: builder.mutation({
+      query: (id) => {
+        console.log(id,'id')
+        return {
+          url: `/room/${id}`,
+          method: "DELETE",
+        };
+      },
+    }),
+    getAllRooms: builder.query({
+      query: (args) => {
+        const queryString = new URLSearchParams(
+          args?.reduce((acc, { name, value }) => {
+            if (value !== undefined && value !== null) {
+              acc[name] = value;
+            }
+            return acc;
+          }, {})
+        ).toString();
+        return {
+          url: `/room?${queryString}`,
+          method: "GET",
+        };
+      },
+    }),
+  }),
 });
 
-export const { useAddNewRoomMutation,useGetAllRoomsQuery} = roomApi;
+export const { useAddNewRoomMutation,useGetAllRoomsQuery,useUpdateRoomMutation,useDeleteRoomMutation} = roomApi;
