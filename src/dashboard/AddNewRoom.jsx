@@ -41,7 +41,7 @@ function DashboardRooms() {
 
   const hotelOptions =
     data?.data?.map((item) => ({ label: item?.name, value: item?.id })) || [];
-
+  
   const onChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
   const onPreview = async (file) => {
@@ -168,7 +168,7 @@ const handleSubmit = async (values) => {
               </Form.Item>
             </div>
 
-            {/* Location */}
+            {/* Location
             <Form.Item
               label="Location"
               name="location"
@@ -177,7 +177,7 @@ const handleSubmit = async (values) => {
               ]}
             >
               <Input placeholder="Enter room location/address" />
-            </Form.Item>
+            </Form.Item> */}
 
             {/* Hotel Selection */}
             <Form.Item

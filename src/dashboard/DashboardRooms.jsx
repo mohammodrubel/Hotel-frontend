@@ -65,12 +65,12 @@ function DashboardRooms() {
       value: 1,
     },
   ]);
-
+console.log(roomsData);
   const hotelOptions =
     hotelsData?.data?.map((item) => ({ label: item?.name, value: item?.id })) ||
     [];
 
-  const rooms = roomsData?.data?.data || [];
+  const rooms = roomsData?.data || [];
 
   const onChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
@@ -169,7 +169,7 @@ function DashboardRooms() {
       capacity: room.capacity,
       available: room.available,
       amenities: room.amenities,
-      location: room.location,
+      // location: room.location,
     });
 
     // Set existing images to fileList
@@ -361,16 +361,7 @@ function DashboardRooms() {
               </Form.Item>
             </div>
 
-            {/* Location */}
-            <Form.Item
-              label="Location"
-              name="location"
-              rules={[
-                { required: true, message: "Enter room location/address" },
-              ]}
-            >
-              <Input placeholder="Enter room location/address" />
-            </Form.Item>
+           
 
             {/* Hotel Selection */}
             <Form.Item

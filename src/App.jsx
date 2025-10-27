@@ -1,11 +1,13 @@
+import Navbar from "./components/Navigation";
 import "./App.css";
 import { Button } from "antd";
+import Banner from "./components/Banner";
 
 function App() {
   return (
     <>
-      <h2 className="text-center">Hello world</h2>
-      <Button type="primary">Hello world</Button>
+      <Navbar/>
+      <Banner/>
     </>
   );
 }
