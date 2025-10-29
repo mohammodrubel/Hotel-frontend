@@ -1,137 +1,193 @@
-"use client";
-import React from "react";
-import { Button, DatePicker, Input, Select } from "antd";
+import React, { useState } from "react";
+import { DatePicker, Button, Input, Select } from "antd";
 import {
   SearchOutlined,
   EnvironmentOutlined,
-  CalendarOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import bannerImage from "../assets/bedroom.jpg";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
+
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-const Banner = () => {
+const HotelBanner = () => {
+  const navigate = useNavigate();
+  const [searchData, setSearchData] = useState({
+    searchTerm: "",
+    checkIn: null,
+    checkOut: null,
+    guestCount: 1,
+  });
+
+  const handleSearch = () => {
+    const formatDate = (date) =>
+      date ? dayjs(date).format("YYYY-MM-DD") : null;
+
+    const formattedData = {
+      ...searchData,
+      checkIn: formatDate(searchData.checkIn),
+      checkOut: formatDate(searchData.checkOut),
+    };
+
+    const params = new URLSearchParams();
+    if (formattedData.searchTerm)
+      params.append("searchTerm", formattedData.searchTerm);
+    if (formattedData.checkIn) params.append("checkIn", formattedData.checkIn);
+    if (formattedData.checkOut)
+      params.append("checkOut", formattedData.checkOut);
+    if (formattedData.guestCount && formattedData.guestCount > 0)
+      params.append("guestCount", formattedData.guestCount.toString());
+
+    const queryString = params.toString();
+    const url = `/room?${queryString}`;
+
+    console.log("Navigating to:", url);
+    navigate(url);
+  };
+
+  const handleDateChange = (dates) => {
+    if (dates) {
+      setSearchData({ ...searchData, checkIn: dates[0], checkOut: dates[1] });
+    } else {
+      setSearchData({ ...searchData, checkIn: null, checkOut: null });
+    }
+  };
+
   return (
-    <section
-      className="relative w-full h-screen min-h-[700px] bg-cover bg-center flex items-center justify-center text-center"
-      style={{
-        backgroundImage: "url('/bedroom.jpg')",
-        backgroundAttachment: "fixed",
-      }}
+    <div
+      className="relative min-h-[70vh] bg-cover bg-center"
+      style={{ backgroundImage: `url(${bannerImage})` }}
     >
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 via-purple-900/50 to-indigo-900/70"></div>
+      {/* 🔳 Black Overlay Layer */}
+      <div className="absolute inset-0 bg-black/60"></div>
 
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-blue-400/10 rounded-full blur-3xl"></div>
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+        <div className="w-full max-w-6xl mx-auto text-center">
+          {/* Title Section */}
+          <div className="mb-12">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+              Find Your Perfect
+              <span className="block bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                Stay
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto leading-relaxed">
+              Discover amazing hotels and resorts around the world. Book your
+              dream vacation with the best deals and exclusive offers.
+            </p>
+          </div>
+
+          {/* Search Card */}
+          <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-2xl border border-white border-opacity-20">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+              {/* Destination */}
+              <div className="lg:col-span-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 text-left">
+                  Destination
+                </label>
+                <div className="relative">
+                  <EnvironmentOutlined className="absolute left-3 top-3 text-gray-400 text-lg" />
+                  <Input
+                    placeholder="Where are you going?"
+                    value={searchData.searchTerm}
+                    onChange={(e) =>
+                      setSearchData({
+                        ...searchData,
+                        searchTerm: e.target.value,
+                      })
+                    }
+                    className="pl-10 h-12 rounded-xl border-gray-300 hover:border-blue-400 focus:border-blue-500"
+                    size="large"
+                  />
+                </div>
+              </div>
+
+              {/* Dates */}
+              <div className="lg:col-span-3">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 text-left">
+                  Check-in / Check-out
+                </label>
+                <RangePicker
+                  className="w-full h-12 rounded-xl border-gray-300 hover:border-blue-400 focus:border-blue-500"
+                  size="large"
+                  placeholder={["Check-in", "Check-out"]}
+                  onChange={handleDateChange}
+                  disabledDate={(current) =>
+                    current && current < dayjs().startOf("day")
+                  }
+                  getPopupContainer={(trigger) => trigger.parentNode}
+                />
+              </div>
+
+              {/* Guests */}
+              <div className="lg:col-span-3">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 text-left">
+                  Guests
+                </label>
+                <div className="relative">
+                  <UserOutlined className="absolute left-3 top-3 z-10 text-gray-400 text-lg" />
+                  <Select
+                    value={searchData.guestCount.toString()}
+                    className="w-full h-12 rounded-xl"
+                    size="large"
+                    onChange={(value) =>
+                      setSearchData({
+                        ...searchData,
+                        guestCount: parseInt(value),
+                      })
+                    }
+                    dropdownClassName="rounded-xl"
+                    suffixIcon={null}
+                  >
+                    <Option value="1">1 Guest</Option>
+                    <Option value="2">2 Guests</Option>
+                    <Option value="3">3 Guests</Option>
+                    <Option value="4">4 Guests</Option>
+                    <Option value="5">5+ Guests</Option>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Search Button */}
+              <div className="lg:col-span-2">
+                <Button
+                  type="primary"
+                  icon={<SearchOutlined />}
+                  size="large"
+                  onClick={handleSearch}
+                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-none rounded-xl text-white font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  Search
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Section */}
+          <div className="mt-12 flex flex-wrap justify-center gap-8 md:gap-16">
+            {[
+              { value: "10K+", label: "Hotels Worldwide" },
+              { value: "500+", label: "Cities" },
+              { value: "1M+", label: "Happy Guests" },
+              { value: "24/7", label: "Support" },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-gray-300 text-sm md:text-base">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-
-      {/* Banner Content */}
-      <div className="relative z-10 max-w-6xl mx-auto text-white px-4 w-full">
-        {/* Main Heading with Animation */}
-        <div className="mb-8 transform transition-all duration-700 hover:scale-105">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-cyan-100 bg-clip-text text-transparent">
-            Find Your Perfect Stay
-          </h1>
-          <p className="text-xl md:text-2xl text-blue-100 font-light max-w-2xl mx-auto leading-relaxed">
-            Discover exclusive hotels, luxurious rooms, and amazing deals
-            tailored for your comfort
-          </p>
-        </div>
-
-        {/* Enhanced Search Form */}
-        <div className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 p-6 md:p-8 max-w-4xl mx-auto transform hover:shadow-2xl transition-all duration-500">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
-            {/* Location Input */}
-            <div className="space-y-2">
-              <label className="text-white text-sm font-medium flex items-center gap-2">
-                <EnvironmentOutlined className="text-blue-300" />
-                Destination
-              </label>
-              <Input
-                placeholder="Where are you going?"
-                className="h-14 rounded-xl border-white/30 bg-white/90 hover:bg-white focus:bg-white transition-all duration-300 [&_.ant-input]:h-12"
-                size="large"
-                prefix={<EnvironmentOutlined className="text-gray-400" />}
-              />
-            </div>
-
-            {/* Date Range Picker */}
-            <div className="space-y-2">
-              <label className="text-white text-sm font-medium flex items-center gap-2">
-                <CalendarOutlined className="text-blue-300" />
-                Dates
-              </label>
-              <RangePicker
-                className="h-14 rounded-xl border-white/30 bg-white/90 hover:bg-white focus:bg-white w-full [&_.ant-picker-input]:h-10 [&_.ant-picker-input>input]:h-10"
-                placeholder={["Check In", "Check Out"]}
-                size="large"
-              />
-            </div>
-
-            {/* Guests Selector */}
-            <div className="space-y-2">
-              <label className="text-white text-sm font-medium flex items-center gap-2">
-                <UserOutlined className="text-blue-300" />
-                Guests
-              </label>
-              <Select
-                defaultValue="2 Guests"
-                className="h-14 rounded-xl border-white/30 bg-white/90 hover:bg-white focus:bg-white w-full [&_.ant-select-selector]:h-12"
-                size="large"
-                suffixIcon={<UserOutlined className="text-gray-400" />}
-              >
-                <Option value="1">1 Guest</Option>
-                <Option value="2">2 Guests</Option>
-                <Option value="3">3 Guests</Option>
-                <Option value="4">4+ Guests</Option>
-              </Select>
-            </div>
-
-            {/* Search Button */}
-            <div className="space-y-2">
-              <label className="text-white text-sm font-medium opacity-0">
-                Action
-              </label>
-              <Button
-                type="primary"
-                size="large"
-                icon={<SearchOutlined className="text-lg" />}
-                className="h-14 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 border-none text-white font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 w-full"
-              >
-                Search
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Trust Indicators */}
-        <div className="mt-12 flex flex-wrap justify-center gap-8 text-white/80">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-sm">Best Price Guarantee</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
-            <span className="text-sm">24/7 Customer Support</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
-            <span className="text-sm">Free Cancellation</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-white/70 rounded-full mt-2"></div>
-        </div>
-      </div>
-    </section>
+    </div>
   );
 };
 
-export default Banner;
+export default HotelBanner;

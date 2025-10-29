@@ -7,9 +7,10 @@ import { toast } from "sonner";
 const { TextArea } = Input;
 
 const AddNewHotel = () => {
-  const [addNewHotel, { isLoading }] = useAddNewHotelMutation();
+  const [addNewHotel] = useAddNewHotelMutation();
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
+  const [loading, setLoading] = useState(false); // ✅ local loading
 
   // ✅ Upload configuration (single image only)
   const uploadProps = {
@@ -26,8 +27,7 @@ const AddNewHotel = () => {
         return Upload.LIST_IGNORE;
       }
 
-      // ✅ Allow only one image
-      setFileList([file]);
+      setFileList([file]); // only one image
       return false; // prevent auto upload
     },
     onRemove: () => setFileList([]),
@@ -43,48 +43,40 @@ const AddNewHotel = () => {
     </div>
   );
 
- const handleUpdate = async (values) => {
-   if (fileList.length === 0 && !existingImage) {
-     message.error("Please upload an image!");
-     return;
-   }
+  const handleAddHotel = async (values) => {
+    if (fileList.length === 0) {
+      return message.error("Please upload an image!");
+    }
 
-   try {
-     const formData = new FormData();
+    setLoading(true); // ✅ start loading
+    try {
+      const formData = new FormData();
+      formData.append(
+        "data",
+        JSON.stringify({
+          name: values.name,
+          location: values.location,
+          description: values.description,
+        })
+      );
+      formData.append("file", fileList[0]);
 
-     // Append file only if a new one is uploaded
-     if (fileList.length > 0) {
-       formData.append("file", fileList[0]);
-     }
+      const res = await addNewHotel(formData).unwrap();
 
-     // Append data as JSON string
-     formData.append("data", JSON.stringify(values));
-
-     const response = await updateHotel({
-       id: editingHotel.id,
-       formData,
-     }).unwrap();
-
-     console.log(response?.message);
-     if (response?.message) {
-       toast.success(response?.message);
-     }
-
-     if (response.error?.data) {
-       toast.error(response.error?.data?.message);
-     }
-
-     form.resetFields();
-     setFileList([]);
-     setExistingImage(null);
-     setEditingHotel(null);
-     setIsModalOpen(false);
-     refetch();
-   } catch (error) {
-     console.error(error);
-     message.error(error?.data?.message || "Failed to update hotel!");
-   }
- };
+      if (res?.success) {
+        toast.success("Hotel created successfully!");
+        form.resetFields();
+        setFileList([]);
+      } else {
+        toast.error(res?.message || "Failed to create hotel");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong!");
+    } finally {
+      setLoading(false); // ✅ stop loading
+    }
+  };
 
   return (
     <div className="p-6">
@@ -95,7 +87,7 @@ const AddNewHotel = () => {
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleUpdate}
+          onFinish={handleAddHotel}
           autoComplete="off"
           encType="multipart/form-data"
         >
@@ -144,7 +136,7 @@ const AddNewHotel = () => {
               type="primary"
               htmlType="submit"
               size="large"
-              loading={isLoading}
+              loading={loading} // ✅ use local loading
               block
             >
               Create Hotel

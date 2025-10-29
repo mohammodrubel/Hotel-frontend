@@ -11,7 +11,7 @@ export const roomApi = baseApi.injectEndpoints({
     }),
     UpdateRoom: builder.mutation({
       query: (data) => {
-        console.log(data)
+        console.log(data);
         return {
           url: `/room/${data?.id}`,
           method: "PUT",
@@ -21,7 +21,7 @@ export const roomApi = baseApi.injectEndpoints({
     }),
     DeleteRoom: builder.mutation({
       query: (id) => {
-        console.log(id,'id')
+        console.log(id, "id");
         return {
           url: `/room/${id}`,
           method: "DELETE",
@@ -44,7 +44,23 @@ export const roomApi = baseApi.injectEndpoints({
         };
       },
     }),
+    GetAllRoomAvalable: builder.query({
+      query: (args) => {
+        const queryString = new URLSearchParams(
+          args?.reduce((acc, { name, value }) => {
+            if (value !== undefined && value !== null) {
+              acc[name] = value;
+            }
+            return acc;
+          }, {})
+        ).toString();
+        return {
+          url: `/room/available?${queryString}`,
+          method: "GET",
+        };
+      },
+    }),
   }),
 });
 
-export const { useAddNewRoomMutation,useGetAllRoomsQuery,useUpdateRoomMutation,useDeleteRoomMutation} = roomApi;
+export const { useAddNewRoomMutation,useGetAllRoomsQuery,useUpdateRoomMutation,useDeleteRoomMutation,useGetAllRoomAvalableQuery} = roomApi;

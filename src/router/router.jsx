@@ -11,6 +11,8 @@ import AddNewRoom from "../dashboard/AddNewRoom";
 import DashboardHotel from "../dashboard/DashboardHotel";
 import AddNewHotel from "../dashboard/AddNewHotel";
 import DashboardUsers from "../dashboard/DashboardUsers";
+import Room from "../page/Room/Room";
+import RoomDetail from "../page/Room/SingleRoom";
 export const router = createBrowserRouter([
   // Public routes
   {
@@ -24,6 +26,14 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/room",
+    element: <Room />,
+  },
+  {
+    path: "/room/:id",
+    element: <RoomDetail />,
   },
 
   // Dashboard routes

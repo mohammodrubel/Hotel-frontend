@@ -65,13 +65,13 @@ function DashboardRooms() {
       value: 1,
     },
   ]);
-console.log(roomsData);
+
   const hotelOptions =
     hotelsData?.data?.map((item) => ({ label: item?.name, value: item?.id })) ||
     [];
 
   const rooms = roomsData?.data || [];
-
+  console.log(rooms)
   const onChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
   const onPreview = async (file) => {

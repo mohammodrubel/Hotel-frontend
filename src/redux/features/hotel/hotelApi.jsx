@@ -2,17 +2,15 @@ import { baseApi } from "../../api/baseApi";
 
 export const hotelApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // ✅ Add new hotel
     addNewHotel: builder.mutation({
       query: (formData) => ({
         url: `/hotels`,
         method: "POST",
-        body: formData,
-        headers: { "Content-Type": "multipart/form-data" }, // required for FormData
+        body: formData, // ✅ just send FormData
+        // headers: remove this line
       }),
-      invalidatesTags: ["Hotels"], // invalidate list after adding
+      invalidatesTags: ["Hotels"],
     }),
-
     // ✅ Update hotel
     updateHotel: builder.mutation({
       query: ({ id, data }) => ({
@@ -35,16 +33,23 @@ export const hotelApi = baseApi.injectEndpoints({
     }),
 
     // ✅ Get all hotels
-    getAllHotel: builder.query({
-      query: (params) =>
-        params
-          ? `/hotels?${new URLSearchParams(params).toString()}`
-          : `/hotels`,
-      providesTags: (result) =>
-        result?.data
-          ? [...result.data.map(({ id }) => ({ type: "Hotels", id })), "Hotels"]
-          : ["Hotels"],
+    GetAllHotel: builder.query({
+      query: (args) => {
+        const queryString = new URLSearchParams(
+          args?.reduce((acc, { name, value }) => {
+            if (value !== undefined && value !== null) {
+              acc[name] = value;
+            }
+            return acc;
+          }, {})
+        ).toString();
+        return {
+          url: `/hotels?${queryString}`,
+          method: "GET",
+        };
+      },
     }),
+   
   }),
 });
 
