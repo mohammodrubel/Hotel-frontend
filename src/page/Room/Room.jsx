@@ -77,13 +77,7 @@ const Room = () => {
     PRESIDENTIAL: "red",
   };
 
-  const toggleFavorite = (roomId) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(roomId)) newFavorites.delete(roomId);
-    else newFavorites.add(roomId);
-    setFavorites(newFavorites);
-  };
-
+  
   const clearAllFilters = () => {
     setSearchTerm("");
     setGuestCount("");

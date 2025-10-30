@@ -13,7 +13,6 @@ import AddNewHotel from "../dashboard/AddNewHotel";
 import DashboardUsers from "../dashboard/DashboardUsers";
 import Room from "../page/Room/Room";
 import RoomDetail from "../page/Room/SingleRoom";
-import Hotel from "../page/Hotel/Hotel";
 export const router = createBrowserRouter([
   // Public routes
   {
@@ -31,10 +30,6 @@ export const router = createBrowserRouter([
   {
     path: "/room",
     element: <Room />,
-  },
-  {
-    path: "/hotels",
-    element: <Hotel />,
   },
   {
     path: "/room/:id",
