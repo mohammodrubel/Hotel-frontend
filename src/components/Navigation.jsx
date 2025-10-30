@@ -9,8 +9,8 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { key: "rooms", label: "Rooms", href: "/rooms" },
-    { key: "hotel", label: "Hotel", href: "/hotel" },
+    { key: "rooms", label: "Rooms", href: "/room" },
+    { key: "hotel", label: "Hotel", href: "/hotels" },
     { key: "about", label: "About", href: "/about" },
   ];
 
