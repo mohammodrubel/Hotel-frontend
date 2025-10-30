@@ -138,22 +138,22 @@ function DashboardRooms() {
   };
 
   const handleDelete = async (roomId) => {
-   
-   
-        try {
-          const response = await deleteRoom(roomId).unwrap();
-          if (response.success) {
-            toast.success(response?.message);
-            refetchRooms();
-          }
-        } catch (error) {
-          if (error?.data?.message) {
-            toast.error(error?.data?.message);
-          }
-          console.error("Error deleting room:", error);
-        }
-    
-    
+
+
+    try {
+      const response = await deleteRoom(roomId).unwrap();
+      if (response.success) {
+        toast.success(response?.message);
+        refetchRooms();
+      }
+    } catch (error) {
+      if (error?.data?.message) {
+        toast.error(error?.data?.message);
+      }
+      console.error("Error deleting room:", error);
+    }
+
+
   };
 
   const handleEdit = (room) => {
@@ -209,6 +209,28 @@ function DashboardRooms() {
       dataIndex: "pricePerNight",
       key: "pricePerNight",
       render: (price) => `$${price}`,
+    },
+    {
+      title: "Images",
+      dataIndex: "images",
+      key: "images",
+      render: (images) => (
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          {images?.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt={`room-${index}`}
+              style={{
+                width: "50px",
+                height: "50px",
+                borderRadius: "10px",
+                objectFit: "cover",
+              }}
+            />
+          ))}
+        </div>
+      ),
     },
     {
       title: "Capacity",
@@ -279,18 +301,12 @@ function DashboardRooms() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-7xl mx-auto">
-      
+
         {/* Rooms Table */}
         <div className="bg-white p-8 rounded-2xl shadow">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">All Rooms</h2>
-            <Button
-              type="primary"
-              onClick={refetchRooms}
-              loading={roomsLoading}
-            >
-              Refresh
-            </Button>
+            
           </div>
           <Table
             columns={columns}
@@ -361,7 +377,7 @@ function DashboardRooms() {
               </Form.Item>
             </div>
 
-           
+
 
             {/* Hotel Selection */}
             <Form.Item
