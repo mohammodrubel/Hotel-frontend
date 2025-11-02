@@ -14,6 +14,7 @@ import DashboardUsers from "../dashboard/DashboardUsers";
 import Room from "../page/Room/Room";
 import RoomDetail from "../page/Room/SingleRoom";
 import RequiredRoute from "../RequiredRoute/RequiredRoute";
+import LoggedInRequiredRoute from "../LoggedInRequiredRoute/LoggedInRequiredRoute";
 export const router = createBrowserRouter([
   // Public routes
   {
@@ -22,7 +23,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <LoggedInRequiredRoute>
+        <Login />
+      </LoggedInRequiredRoute>
+    ),
   },
   {
     path: "/register",

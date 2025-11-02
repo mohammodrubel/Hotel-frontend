@@ -1,18 +1,33 @@
-
 import React, { useState } from "react";
 import { MenuOutlined } from "@ant-design/icons";
 import { Drawer, Button } from "antd";
 import { Link } from "react-router-dom";
-
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../redux/features/auth/authSlice"; // adjust path if needed
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state?.auth?.user);
 
-  const navItems = [
-    { key: "rooms", label: "Rooms", href: "/room" },
-    { key: "about", label: "About", href: "/about" },
-    { key: "login", label: "Login", href: "/login" },
-  ];
+  // Logout handler
+  const handleLogout = () => {
+    dispatch(logout());
+    setOpen(false);
+  };
+
+  // Show different navs depending on login status
+  const navItems = user
+    ? [
+        { key: "rooms", label: "Rooms", href: "/room" },
+        { key: "about", label: "About", href: "/about" },
+        { key: "logout", label: "Logout", action: handleLogout },
+      ]
+    : [
+        { key: "rooms", label: "Rooms", href: "/room" },
+        { key: "about", label: "About", href: "/about" },
+        { key: "login", label: "Login", href: "/login" },
+      ];
 
   return (
     <nav className="w-full bg-white shadow-md fixed top-0 left-0 z-50">
@@ -20,20 +35,30 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="text-xl font-bold text-blue-600">
-            MyHotel
+            LuxeStay
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.key}
-                to={item.href}
-                className="text-gray-700 hover:text-blue-600 font-medium transition"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) =>
+              item.action ? (
+                <button
+                  key={item.key}
+                  onClick={item.action}
+                  className="text-gray-700 hover:text-blue-600 font-medium transition"
+                >
+                  {item.label}
+                </button>
+              ) : (
+                <Link
+                  key={item.key}
+                  to={item.href}
+                  className="text-gray-700 hover:text-blue-600 font-medium transition"
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -59,16 +84,26 @@ const Navbar = () => {
         bodyStyle={{ padding: "1rem" }}
       >
         <div className="flex flex-col space-y-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.key}
-              to={item.href}
-              className="text-lg text-gray-700 hover:text-blue-600 font-medium"
-              onClick={() => setOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) =>
+            item.action ? (
+              <button
+                key={item.key}
+                onClick={item.action}
+                className="text-lg text-gray-700 hover:text-blue-600 font-medium text-left"
+              >
+                {item.label}
+              </button>
+            ) : (
+              <Link
+                key={item.key}
+                to={item.href}
+                className="text-lg text-gray-700 hover:text-blue-600 font-medium"
+                onClick={() => setOpen(false)}
+              >
+                {item.label}
+              </Link>
+            )
+          )}
         </div>
       </Drawer>
     </nav>
