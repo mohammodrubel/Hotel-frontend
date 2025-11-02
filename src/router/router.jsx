@@ -13,6 +13,7 @@ import AddNewHotel from "../dashboard/AddNewHotel";
 import DashboardUsers from "../dashboard/DashboardUsers";
 import Room from "../page/Room/Room";
 import RoomDetail from "../page/Room/SingleRoom";
+import RequiredRoute from "../RequiredRoute/RequiredRoute";
 export const router = createBrowserRouter([
   // Public routes
   {
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
     path: "/room",
     element: <Room />,
   },
+
   {
     path: "/room/:id",
     element: <RoomDetail />,
@@ -39,7 +41,11 @@ export const router = createBrowserRouter([
   // Dashboard routes
   {
     path: "/dashboard",
-    element: <DashboardLayout />,
+    element: (
+      <RequiredRoute>
+        <DashboardLayout />
+      </RequiredRoute>
+    ),
     children: [
       {
         index: true,

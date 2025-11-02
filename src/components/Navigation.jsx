@@ -10,8 +10,8 @@ const Navbar = () => {
 
   const navItems = [
     { key: "rooms", label: "Rooms", href: "/room" },
-    { key: "hotel", label: "Hotel", href: "/hotels" },
     { key: "about", label: "About", href: "/about" },
+    { key: "login", label: "Login", href: "/login" },
   ];
 
   return (
