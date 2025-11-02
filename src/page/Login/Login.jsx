@@ -1,23 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Input, Button, message, Card } from "antd";
 import { LockOutlined, UserOutlined, MailOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useLoginMutation } from "../../redux/features/auth/authApi";
+import { toast } from "sonner";
+import convertMyToken from "../../utils/jwtToken";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../redux/features/auth/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  const [loading, setLoading] = React.useState(false);
-
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch()
+  const [loginData]=useLoginMutation()
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      console.log("Login Data:", values);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      message.success("Logged in successfully!");
-      localStorage.setItem("isAuthenticated", "true");
-      navigate("/dashboard");
+      const res = await loginData(values).unwrap()
+      if(res?.success){
+        const user = convertMyToken(res?.data?.access_token);
+        dispatch(setUser({user:user,token:res?.data?.access_token}));
+        navigate('/')
+      }
     } catch (error) {
-      message.error("Login failed. Please check your credentials.");
+     toast.error(error?.data?.message)
     } finally {
       setLoading(false);
     }

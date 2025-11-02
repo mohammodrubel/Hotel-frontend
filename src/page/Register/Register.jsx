@@ -2,21 +2,30 @@ import React from "react";
 import { Form, Input, Button, message, Card } from "antd";
 import { LockOutlined, UserOutlined, MailOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useRegisterMutation } from "../../redux/features/auth/authApi";
+import { toast } from "sonner";
 
 const Register = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = React.useState(false);
+  const [registerData] = useRegisterMutation()
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      console.log("Register Data:", values);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      message.success("Registration successful!");
-      navigate("/login");
+      const { confirmPassword, ...data } = values;
+      console.log(values);
+      const res = await registerData(data).unwrap();
+      if(res?.success){
+        toast.success(res?.message)
+        navigate("/login");
+      }
+      
     } catch (error) {
-      message.error("Registration failed. Please try again.");
+      if(error?.status === 409){
+        toast.error(error?.data?.message)
+      }
     } finally {
       setLoading(false);
     }
@@ -24,11 +33,8 @@ const Register = () => {
 
   const passwordRules = [
     { required: true, message: "Please input your password!" },
-    { min: 8, message: "Password must be at least 8 characters!" },
-    {
-      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      message: "Must contain uppercase, lowercase, and numbers!",
-    },
+    { min: 6, message: "Password must be at least 8 characters!" },
+    
   ];
 
   return (
@@ -64,7 +70,7 @@ const Register = () => {
             className="p-6"
           >
             <Form.Item
-              name="fullName"
+              name="name"
               label="Full Name"
               rules={[
                 { required: true, message: "Please input your full name!" },
