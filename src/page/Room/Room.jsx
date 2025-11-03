@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import {
   Card,
   Row,
@@ -12,27 +12,34 @@ import {
   Divider,
   Tag,
   Button,
-  Badge,
   Tooltip,
+  Modal,
+  DatePicker,
+  InputNumber,
+  message,
+  Steps,
 } from "antd";
 import {
   SearchOutlined,
   UserOutlined,
-  WifiOutlined,
-  CarOutlined,
-  CoffeeOutlined,
-  EnvironmentOutlined,
   FilterOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useGetAllRoomAvalableQuery } from "../../redux/features/room/roomApi";
 import Navbar from "../../components/Navigation";
+import { useSelector } from "react-redux";
+import BookingModal from "../../components/BookingModal";
+import RoomCard from "../../components/RoomCard";
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
+const { RangePicker } = DatePicker;
+const { Step } = Steps;
 
 const Room = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [favorites, setFavorites] = useState(new Set());
+  const user = useSelector((state) => state?.auth?.user);
 
   const {
     searchTerm = "",
@@ -50,6 +57,10 @@ const Room = () => {
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [roomType, setRoomType] = useState("");
 
+  // Global Booking Modal States
+  const [isBookingModalVisible, setIsBookingModalVisible] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+
   const { data, isLoading } = useGetAllRoomAvalableQuery([
     { name: "searchTerm", value: search || "" },
     { name: "guestCount", value: guest || "" },
@@ -61,23 +72,6 @@ const Room = () => {
     { name: "page", value: page },
   ]);
 
-  const amenityIcons = {
-    wifi: <WifiOutlined />,
-    parking: <CarOutlined />,
-    breakfast: <CoffeeOutlined />,
-  };
-
-  const roomTypeColors = {
-    SINGLE: "blue",
-    DOUBLE: "green",
-    TWIN: "orange",
-    DELUXE: "purple",
-    SUITE: "gold",
-    FAMILY: "cyan",
-    PRESIDENTIAL: "red",
-  };
-
-  
   const clearAllFilters = () => {
     setSearchTerm("");
     setGuestCount("");
@@ -93,6 +87,44 @@ const Room = () => {
     setGuestCount(e.target.value);
   };
 
+  // Handle Room Details Click
+  const handleViewDetails = (room) => {
+    if (!user) {
+      Modal.confirm({
+        title: "Authentication Required",
+        content: "Please login to view room details.",
+        okText: "Login",
+        cancelText: "Cancel",
+        onOk: () => navigate("/login"),
+      });
+      return;
+    }
+    navigate(`/room/${room?.id}`);
+  };
+
+  // Handle Book Now Click
+  const handleBookNowClick = (room) => {
+    if (!user) {
+      Modal.confirm({
+        title: "Authentication Required",
+        content: "Please login to book this room.",
+        okText: "Login",
+        cancelText: "Cancel",
+        onOk: () => navigate("/login"),
+      });
+      return;
+    }
+
+    setSelectedRoom(room);
+    setIsBookingModalVisible(true);
+  };
+
+  // Handle Booking Success
+  const handleBookingSuccess = () => {
+    message.success("Booking completed successfully!");
+    setSelectedRoom(null);
+  };
+
   const hasActiveFilters =
     search || guest || roomType || priceRange[0] > 0 || priceRange[1] < 1000;
 
@@ -101,22 +133,13 @@ const Room = () => {
       <Navbar />
       <div className="container mt-20 mx-auto">
         <Row gutter={[24, 24]}>
-          {/* Filters Sidebar - Fixed Position */}
+          {/* Filters Sidebar */}
           <Col xs={24} md={8} lg={6}>
-            <div
-              style={{
-                position: "sticky",
-                top: 80, // Adjust this value based on your navbar height
-                zIndex: 10,
-              }}
-            >
+            <div style={{ position: "sticky", top: 80, zIndex: 10 }}>
               <Card
                 title={
                   <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
+                    style={{ display: "flex", justifyContent: "space-between" }}
                   >
                     <Title
                       level={4}
@@ -323,7 +346,7 @@ const Room = () => {
                 </div>
 
                 {/* Price Range */}
-                <div style={{ minHeight: 150 }}>
+                {/* <div style={{ minHeight: 150 }}>
                   <Divider
                     style={{
                       margin: "24px 0 16px 0",
@@ -349,7 +372,7 @@ const Room = () => {
                       borderRadius: 3,
                     }}
                   />
-                </div>
+                </div> */}
               </Card>
             </div>
           </Col>
@@ -370,184 +393,12 @@ const Room = () => {
                 {data?.data?.length > 0 ? (
                   data.data.map((room) => (
                     <Col xs={24} sm={12} md={12} lg={8} key={room.id}>
-                      <Card
-                        hoverable
-                        cover={
-                          <div style={{ position: "relative" }}>
-                            <img
-                              src={room.images?.[0] || room.hotel?.images}
-                              alt={room.hotel?.name}
-                              style={{
-                                height: 220,
-                                width: "100%",
-                                objectFit: "cover",
-                                borderTopLeftRadius: 16,
-                                borderTopRightRadius: 16,
-                              }}
-                            />
-                          </div>
-                        }
-                        style={{
-                          borderRadius: 16,
-                          overflow: "hidden",
-                          boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
-                          background: "white",
-                          border: "none",
-                          height: "100%",
-                        }}
-                        bodyStyle={{ padding: 20 }}
-                      >
-                        <div style={{ marginBottom: 16 }}>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "flex-start",
-                              marginBottom: 8,
-                            }}
-                          >
-                            <Text
-                              strong
-                              style={{
-                                fontSize: "18px",
-                                color: "#1a3353",
-                                display: "block",
-                              }}
-                            >
-                              {room.hotel?.name}
-                            </Text>
-                          </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              marginBottom: 8,
-                            }}
-                          >
-                            <EnvironmentOutlined
-                              style={{
-                                color: "#ff4d4f",
-                                marginRight: 6,
-                                fontSize: "12px",
-                              }}
-                            />
-                            <Text type="secondary" style={{ fontSize: "12px" }}>
-                              {room.hotel?.location || "City Center"}
-                            </Text>
-                          </div>
-                        </div>
-
-                        <div style={{ marginBottom: 16 }}>
-                          <Tag
-                            color={roomTypeColors[room.type] || "blue"}
-                            style={{
-                              marginBottom: 8,
-                              borderRadius: 6,
-                              fontWeight: 600,
-                              border: "none",
-                            }}
-                          >
-                            {room.type}
-                          </Tag>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 8,
-                              background: "#f6ffed",
-                              padding: "6px 12px",
-                              borderRadius: 6,
-                              border: "1px solid #b7eb8f",
-                            }}
-                          >
-                            <UserOutlined style={{ color: "#52c41a" }} />
-                            <Text style={{ color: "#389e0d", fontWeight: 500 }}>
-                              Capacity: {room.capacity} guests
-                            </Text>
-                          </div>
-                        </div>
-
-                        {room.amenities?.length > 0 && (
-                          <div style={{ marginBottom: 16 }}>
-                            <Text
-                              strong
-                              style={{
-                                display: "block",
-                                marginBottom: 8,
-                                color: "#1a3353",
-                              }}
-                            >
-                              🛎️ Amenities:
-                            </Text>
-                            <div
-                              style={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: 6,
-                              }}
-                            >
-                              {room.amenities.map((amenity, idx) => (
-                                <Tag
-                                  key={idx}
-                                  icon={amenityIcons[amenity] || null}
-                                  style={{
-                                    margin: 0,
-                                    borderRadius: 6,
-                                    background: "#f0f8ff",
-                                    border: "1px solid #d6e4ff",
-                                    color: "#1890ff",
-                                  }}
-                                >
-                                  {amenity}
-                                </Tag>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <Divider
-                          style={{ margin: "16px 0", background: "#f0f0f0" }}
-                        />
-
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <div>
-                            <Text
-                              strong
-                              style={{
-                                fontSize: "24px",
-                                color: "#1890ff",
-                                background:
-                                  "linear-gradient(135deg, #1890ff, #722ed1)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                fontWeight: "bold",
-                              }}
-                            >
-                              ${room.pricePerNight}
-                            </Text>
-                            <Text type="secondary" style={{ marginLeft: 4 }}>
-                              /night
-                            </Text>
-                            <div style={{ marginTop: 4 }}>
-                              <Text
-                                type="secondary"
-                                style={{ fontSize: "12px" }}
-                              >
-                                Includes taxes & fees
-                              </Text>
-                            </div>
-                          </div>
-                          <Button type="primary" size="large">
-                            Book Now
-                          </Button>
-                        </div>
-                      </Card>
+                      <RoomCard
+                        room={room}
+                        user={user}
+                        onViewDetails={handleViewDetails}
+                        onBookNow={handleBookNowClick}
+                      />
                     </Col>
                   ))
                 ) : (
@@ -598,6 +449,15 @@ const Room = () => {
             )}
           </Col>
         </Row>
+
+        {/* Global Booking Modal */}
+        <BookingModal
+          visible={isBookingModalVisible}
+          onCancel={() => setIsBookingModalVisible(false)}
+          selectedRoom={selectedRoom}
+          user={user}
+          onBookingSuccess={handleBookingSuccess}
+        />
       </div>
     </div>
   );

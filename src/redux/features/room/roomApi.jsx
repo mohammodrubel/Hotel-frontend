@@ -60,7 +60,15 @@ export const roomApi = baseApi.injectEndpoints({
         };
       },
     }),
+    GetSingleRoom:builder.query({
+      query:(id)=>{
+        return {
+          url:`/room/${id}`,
+          method:"GET"
+        }
+      }
+    })
   }),
 });
 
-export const { useAddNewRoomMutation,useGetAllRoomsQuery,useUpdateRoomMutation,useDeleteRoomMutation,useGetAllRoomAvalableQuery} = roomApi;
+export const { useAddNewRoomMutation,useGetAllRoomsQuery,useUpdateRoomMutation,useDeleteRoomMutation,useGetAllRoomAvalableQuery,useGetSingleRoomQuery} = roomApi;
