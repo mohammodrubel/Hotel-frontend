@@ -22,7 +22,8 @@ import {
 import { useSelector } from "react-redux";
 import dayjs from "dayjs";
 import { toast } from "sonner";
-import {useAddNewBookingMutation} from '../redux/features/booking/bookingApi'
+import { useAddNewBookingMutation } from "../redux/features/booking/bookingApi";
+
 const { Title, Paragraph, Text } = Typography;
 const { RangePicker } = DatePicker;
 const { Step } = Steps;
@@ -37,8 +38,8 @@ const BookingModal = ({
   const [form] = Form.useForm();
   const [bookingData, setBookingData] = useState(null);
   const user = useSelector((state) => state?.auth?.user);
-  const [addNewBooking] = useAddNewBookingMutation()
- 
+  const [addNewBooking] = useAddNewBookingMutation();
+
   // Calculate total price based on dates and room price
   const calculateTotalPrice = (dateRange, guestCount) => {
     if (
@@ -80,7 +81,7 @@ const BookingModal = ({
     return Promise.resolve();
   };
 
-  const handleStep1Submit = async(values) => {
+  const handleStep1Submit = async (values) => {
     const { dateRange, guests } = values;
 
     // Prepare booking data according to your Prisma schema
@@ -144,9 +145,19 @@ const BookingModal = ({
     return dayjs(date).format("MMM DD, YYYY");
   };
 
-  // Disabled dates for DatePicker (past dates)
+  // Disabled dates for DatePicker - only allow next 7 days
   const disabledDate = (current) => {
-    return current && current < dayjs().startOf("day");
+    // Disable dates before today
+    if (current && current < dayjs().startOf("day")) {
+      return true;
+    }
+
+    // Disable dates after 7 days from today
+    if (current && current > dayjs().add(7, "days").endOf("day")) {
+      return true;
+    }
+
+    return false;
   };
 
   return (
@@ -189,7 +200,7 @@ const BookingModal = ({
             >
               <Form.Item
                 name="dateRange"
-                label="Select Date Range"
+                label="Select Date Range (Next 7 Days Only)"
                 rules={[
                   {
                     required: true,
@@ -203,6 +214,7 @@ const BookingModal = ({
                   size="large"
                   disabledDate={disabledDate}
                   format="MMM DD, YYYY"
+                  placeholder={["Check-in date", "Check-out date"]}
                 />
               </Form.Item>
 

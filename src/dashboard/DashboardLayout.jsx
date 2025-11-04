@@ -49,18 +49,8 @@ export const menuItems = [
     ],
   },
   {
-    key: "bookings",
+    key: "/dashboard/bookings",
     label: "Bookings",
-    children: [
-      {
-        key: "/dashboard/bookings/create",
-        label: "Create Booking",
-      },
-      {
-        key: "/dashboard/bookings",
-        label: "View Bookings",
-      },
-    ],
   },
   {
     key: "/dashboard/settings",
