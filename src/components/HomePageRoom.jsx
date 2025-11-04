@@ -11,10 +11,7 @@ const { Title, Text, Paragraph } = Typography;
 
 function HomePageRoom() {
   const navigate = useNavigate();
-
-  // Try different selector patterns
   const user = useSelector((state) => state.auth.user);
-
   const { data, isLoading, error } = useGetAllRoomsQuery([]);
 
   const [isBookingModalVisible, setIsBookingModalVisible] = useState(false);
@@ -30,7 +27,6 @@ function HomePageRoom() {
     e.stopPropagation();
 
     if (!user) {
-      console.log("No user found, showing login modal");
       Modal.confirm({
         title: "Authentication Required",
         content: "Please login to book this room.",
@@ -48,28 +44,26 @@ function HomePageRoom() {
   // Handle booking success
   const handleBookingSuccess = () => {
     console.log("Booking completed successfully!");
+    // You can add additional success handling here
+    // like refetching rooms data, showing success message, etc.
   };
 
   // Loading skeleton
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 sm:py-12">
-        <Title level={2} className="text-center mb-6 sm:mb-8">
+      <div className="container mx-auto px-4 py-12">
+        <Title level={2} className="text-center mb-8">
           Available Rooms
         </Title>
-        <Row gutter={[16, 16]}>
+        <Row gutter={[24, 24]}>
           {[...Array(8)].map((_, index) => (
             <Col xs={24} sm={12} md={8} lg={6} key={index}>
               <Card
-                className="h-full shadow-sm hover:shadow-md transition-shadow duration-300 border-0"
-                bodyStyle={{ padding: "12px" }}
+                className="h-full border-0 rounded-lg"
+                bodyStyle={{ padding: "16px" }}
               >
-                <Skeleton.Image
-                  active
-                  className="!w-full !h-32 sm:!h-36 mb-3"
-                />
-                <Skeleton active paragraph={{ rows: 2 }} />
-                <Skeleton.Button active className="!w-full !h-8 mt-2" />
+                <Skeleton.Image className="!w-full !h-48 mb-4 rounded-lg" />
+                <Skeleton active paragraph={{ rows: 3 }} />
               </Card>
             </Col>
           ))}
@@ -81,12 +75,12 @@ function HomePageRoom() {
   // Error state
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8 sm:py-12">
-        <Title level={2} className="text-center mb-6 sm:mb-8">
+      <div className="container mx-auto px-4 py-12">
+        <Title level={2} className="text-center mb-8">
           Available Rooms
         </Title>
-        <Card className="text-center py-8">
-          <Text type="danger">
+        <Card className="text-center py-12 border-0 shadow-lg">
+          <Text type="danger" className="text-lg">
             Error loading rooms. Please try again later.
           </Text>
         </Card>
@@ -97,41 +91,35 @@ function HomePageRoom() {
   // No rooms found
   if (!data?.data || data?.data?.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8 sm:py-12">
-        <Title level={2} className="text-center mb-6 sm:mb-8">
+      <div className="container mx-auto px-4 py-12">
+        <Title level={2} className="text-center mb-8">
           Available Rooms
         </Title>
-        <Card className="text-center py-8">
-          <Text type="secondary">No rooms available at the moment.</Text>
+        <Card className="text-center py-12 border-0 shadow-lg">
+          <Text type="secondary" className="text-lg">
+            No rooms available at the moment.
+          </Text>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 py-8 sm:py-12">
+    <div className="container mx-auto px-4 py-12">
       {/* Header Section */}
-      <div className="text-center mb-8 sm:mb-12">
-        <Title
-          level={2}
-          className="text-gray-800 mb-3 sm:mb-4 text-xl sm:text-2xl lg:text-3xl"
-        >
+      <div className="text-center mb-12">
+        <Title level={1} className="text-gray-900 mb-4 text-3xl md:text-4xl">
           Luxury Rooms & Suites
         </Title>
-        <Paragraph className="text-gray-600 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto px-4">
+        <Paragraph className="text-gray-600 text-lg max-w-2xl mx-auto">
           Discover our carefully curated selection of rooms designed for your
           comfort and luxury
         </Paragraph>
       </div>
 
-      {/* Responsive Rooms Grid */}
-      <Row
-        gutter={[
-          { xs: 12, sm: 16, md: 20 },
-          { xs: 12, sm: 16, md: 20 },
-        ]}
-      >
-        {data?.data?.map((room) => (
+      {/* Rooms Grid */}
+      <Row gutter={[24, 24]}>
+        {data.data.map((room) => (
           <Col xs={24} sm={12} md={8} lg={6} key={room.id}>
             <RoomCard
               room={room}
@@ -146,7 +134,7 @@ function HomePageRoom() {
         ))}
       </Row>
 
-      {/* Global Booking Modal */}
+      {/* Booking Modal */}
       <BookingModal
         visible={isBookingModalVisible}
         onCancel={() => setIsBookingModalVisible(false)}

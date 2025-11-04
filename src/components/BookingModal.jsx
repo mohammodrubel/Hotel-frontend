@@ -9,6 +9,7 @@ import {
   Steps,
   Input,
   Typography,
+  Button,
 } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
@@ -26,6 +27,8 @@ const BookingModal = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [form] = Form.useForm();
   const user = useSelector((state) => state?.auth?.user);
+
+  console.log("BookingModal props:", { visible, selectedRoom, user }); // Debug log
 
   const handleBookingSubmit = (values) => {
     console.log("Booking details:", {
@@ -109,6 +112,7 @@ const BookingModal = ({
 
           {currentStep === 1 && (
             <Form
+              form={form}
               layout="vertical"
               onFinish={(values) => {
                 handleBookingSubmit(values);

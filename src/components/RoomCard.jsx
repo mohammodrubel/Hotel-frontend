@@ -11,7 +11,15 @@ import {
 
 const { Text } = Typography;
 
-const RoomCard = ({ room, user, onViewDetails, onBookNow }) => {
+const RoomCard = ({
+  room,
+  user,
+  onViewDetails,
+  onBookNow,
+  showHotelInfo = true,
+  showRating = true,
+  showCapacity = true,
+}) => {
   const amenityIcons = {
     wifi: <WifiOutlined />,
     parking: <CarOutlined />,
@@ -26,6 +34,22 @@ const RoomCard = ({ room, user, onViewDetails, onBookNow }) => {
     SUITE: "gold",
     FAMILY: "cyan",
     PRESIDENTIAL: "red",
+  };
+
+  const handleCardClick = () => {
+    if (user && onViewDetails) {
+      onViewDetails(room);
+    }
+  };
+
+  const handleViewDetailsClick = (e) => {
+    e.stopPropagation();
+    onViewDetails(room);
+  };
+
+  const handleBookNowClick = (e) => {
+    e.stopPropagation();
+    onBookNow(room, e);
   };
 
   return (
@@ -85,7 +109,7 @@ const RoomCard = ({ room, user, onViewDetails, onBookNow }) => {
         cursor: user ? "pointer" : "not-allowed",
       }}
       bodyStyle={{ padding: 20 }}
-      onClick={user ? () => onViewDetails(room) : undefined}
+      onClick={handleCardClick}
     >
       <div style={{ marginBottom: 16 }}>
         <div
@@ -127,7 +151,14 @@ const RoomCard = ({ room, user, onViewDetails, onBookNow }) => {
         </div>
       </div>
 
-      <div style={{ marginBottom: 16 ,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+      <div
+        style={{
+          marginBottom: 16,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Tag
           color={roomTypeColors[room.type] || "blue"}
           style={{
@@ -197,8 +228,7 @@ const RoomCard = ({ room, user, onViewDetails, onBookNow }) => {
 
       <Divider style={{ margin: "16px 0", background: "#f0f0f0" }} />
 
-      <div
-      >
+      <div>
         <div>
           <Text
             strong
@@ -216,28 +246,14 @@ const RoomCard = ({ room, user, onViewDetails, onBookNow }) => {
           <Text type="secondary" style={{ marginLeft: 4 }}>
             /night
           </Text>
-         
         </div>
         <Space>
           <Tooltip title="View Details">
-            <Button
-              icon={<EyeOutlined />}
-              onClick={(e) => {
-                e.stopPropagation();
-                onViewDetails(room);
-              }}
-            >
+            <Button icon={<EyeOutlined />} onClick={handleViewDetailsClick}>
               Details
             </Button>
           </Tooltip>
-          <Button
-            type="primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              onBookNow(room);
-            }}
-            disabled={!user}
-          >
+          <Button type="primary" onClick={handleBookNowClick} disabled={!user}>
             {user ? "Book Now" : "Login to Book"}
           </Button>
         </Space>
