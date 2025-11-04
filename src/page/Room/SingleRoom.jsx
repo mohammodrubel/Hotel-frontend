@@ -1,3 +1,4 @@
+// components/RoomDetail.js
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -11,31 +12,25 @@ import {
   Divider,
   Badge,
   Modal,
-  Form,
-  DatePicker,
-  InputNumber,
-  message,
-  Steps,
   Space,
   Descriptions,
-  Input,
   Spin,
   Image,
 } from "antd";
 import {
-  CheckCircleOutlined,
   StarFilled,
   EnvironmentOutlined,
   WifiOutlined,
   CarOutlined,
   CoffeeOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { useGetSingleRoomQuery } from "../../redux/features/room/roomApi";
+import BookingModal from "../../components/BookingModal";
+
 
 const { Title, Paragraph, Text } = Typography;
-const { RangePicker } = DatePicker;
-const { Step } = Steps;
 
 // Amenity icons mapping
 const amenityIcons = {
@@ -55,8 +50,6 @@ const RoomDetail = () => {
   const roomImages = room?.images || [];
 
   const [isBookingModalVisible, setIsBookingModalVisible] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [form] = Form.useForm();
   const [mainImage, setMainImage] = useState(roomImages[0] || "");
 
   const handleBookNow = () => {
@@ -73,16 +66,10 @@ const RoomDetail = () => {
     setIsBookingModalVisible(true);
   };
 
-  const handleBookingSubmit = (values) => {
-    console.log("Booking details:", {
-      ...values,
-      room: room,
-      user: user.id,
-    });
-    message.success("Booking successful!");
+  const handleBookingSuccess = () => {
     setIsBookingModalVisible(false);
-    setCurrentStep(0);
-    form.resetFields();
+    // You can add any additional success handling here
+    // like redirecting to bookings page or showing a toast
   };
 
   // Set main image when component loads or roomImages changes
@@ -406,118 +393,13 @@ const RoomDetail = () => {
           </Col>
         </Row>
 
-        {/* Booking Modal */}
-        <Modal
-          title={`Book ${hotel?.name} - ${room.type}`}
-          open={isBookingModalVisible}
-          onCancel={() => {
-            setIsBookingModalVisible(false);
-            setCurrentStep(0);
-            form.resetFields();
-          }}
-          footer={null}
-          width={600}
-          style={{ borderRadius: 12 }}
-        >
-          <Steps
-            current={currentStep}
-            style={{ marginBottom: 32 }}
-            items={[
-              { title: "Select Dates" },
-              { title: "Guest Info" },
-              { title: "Confirm" },
-            ]}
-          />
-
-          {currentStep === 0 && (
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={() => setCurrentStep(1)}
-            >
-              <Form.Item
-                name="dateRange"
-                label="Select Date Range"
-                rules={[{ required: true, message: "Please select dates!" }]}
-              >
-                <RangePicker style={{ width: "100%" }} size="large" />
-              </Form.Item>
-              <Form.Item
-                name="guests"
-                label="Number of Guests"
-                rules={[{ required: true, message: "Enter number of guests" }]}
-              >
-                <InputNumber
-                  min={1}
-                  max={room.capacity || 10}
-                  style={{ width: "100%" }}
-                  size="large"
-                  placeholder={`Max: ${room.capacity} guests`}
-                />
-              </Form.Item>
-              <Button type="primary" htmlType="submit" block size="large">
-                Next
-              </Button>
-            </Form>
-          )}
-
-          {currentStep === 1 && (
-            <Form
-              layout="vertical"
-              onFinish={(values) => {
-                handleBookingSubmit(values);
-                setCurrentStep(2);
-              }}
-            >
-              <Form.Item
-                name="name"
-                label="Full Name"
-                initialValue={user?.name || ""}
-                rules={[{ required: true, message: "Enter your name" }]}
-              >
-                <Input placeholder="Your full name" size="large" />
-              </Form.Item>
-              <Form.Item
-                name="email"
-                label="Email"
-                initialValue={user?.email || ""}
-                rules={[
-                  { required: true, message: "Enter your email" },
-                  { type: "email", message: "Please enter a valid email" },
-                ]}
-              >
-                <Input placeholder="example@mail.com" size="large" />
-              </Form.Item>
-              <Form.Item
-                name="phone"
-                label="Phone Number"
-                rules={[{ required: true, message: "Enter your phone number" }]}
-              >
-                <Input placeholder="+1 234 567 8900" size="large" />
-              </Form.Item>
-              <Button type="primary" htmlType="submit" block size="large">
-                Confirm Booking
-              </Button>
-            </Form>
-          )}
-
-          {currentStep === 2 && (
-            <div style={{ textAlign: "center", padding: "40px 0" }}>
-              <CheckCircleOutlined
-                style={{ fontSize: 64, color: "#52c41a", marginBottom: 24 }}
-              />
-              <Title level={3} style={{ color: "#52c41a", marginBottom: 16 }}>
-                Booking Confirmed!
-              </Title>
-              <Paragraph style={{ fontSize: 16, marginBottom: 8 }}>
-                Thank you for booking {room.type} room at {hotel.name}.
-              </Paragraph>
-              <Text type="secondary">
-                A confirmation email has been sent to {user?.email}.
-              </Text>
-            </div>
-          )}
-        </Modal>
+        {/* Use Global Booking Modal */}
+        <BookingModal
+          visible={isBookingModalVisible}
+          onCancel={() => setIsBookingModalVisible(false)}
+          selectedRoom={room}
+          onBookingSuccess={handleBookingSuccess}
+        />
       </div>
     </div>
   );

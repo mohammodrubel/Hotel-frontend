@@ -15,6 +15,7 @@ import Room from "../page/Room/Room";
 import RoomDetail from "../page/Room/SingleRoom";
 import RequiredRoute from "../RequiredRoute/RequiredRoute";
 import LoggedInRequiredRoute from "../LoggedInRequiredRoute/LoggedInRequiredRoute";
+import PaymentSuccess from "../page/PaymentSuccess/PaymentSuccess";
 export const router = createBrowserRouter([
   // Public routes
   {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
       </LoggedInRequiredRoute>
     ),
   },
+  {
+  path: "/payment/success",
+  element: <PaymentSuccess />,
+},
   {
     path: "/register",
     element: <Register />,
