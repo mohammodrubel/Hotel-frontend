@@ -6,7 +6,7 @@ import Navbar from "../../components/Navigation";
 
 const HotelList = () => {
   const navigate = useNavigate();
-  const [limit,setLimit]=useState(4)
+  const [limit,setLimit]=useState(12)
   const [page,setPage]=useState(1)
   const { data, isLoading, error } = useGetAllHotelQuery([
     { name: "limit", value: limit },
