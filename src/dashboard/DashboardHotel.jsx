@@ -11,6 +11,7 @@ import {
   Upload,
   Card,
   Image,
+  Pagination,
 } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { toast } from "sonner";
@@ -23,7 +24,16 @@ import {
 const { TextArea } = Input;
 
 const DashboardHotel = () => {
-  const { data: hotelsData, isLoading, refetch } = useGetAllHotelQuery();
+    const [limit, setLimit] = useState(10);
+    const [page, setPage] = useState(1);
+  const {
+    data: hotelsData,
+    isLoading,
+    refetch,
+  } = useGetAllHotelQuery([
+    { name: "limit", value: limit },
+    { name: "page", value: page },
+  ]);
   const [deleteHotel] = useDeleteHotelMutation();
   const [updateHotel, { isLoading: updating }] = useUpdateHotelMutation();
 
@@ -34,7 +44,7 @@ const DashboardHotel = () => {
   const [existingImage, setExistingImage] = useState(null);
 
   const hotels = hotelsData?.data || [];
-
+console.log(hotels)
   // Delete hotel
   const handleDelete = async (id) => {
     try {
@@ -189,8 +199,16 @@ const DashboardHotel = () => {
           dataSource={hotels}
           loading={isLoading}
           rowKey="id"
-          pagination={{ pageSize: 5 }}
+          pagination={false}
         />
+        <div className="mx-auto py-5 text-center flex justify-center">
+          <Pagination
+            current={page}
+            pageSize={limit}
+            total={hotelsData?.meta?.total}
+            onChange={(page) => setPage(page)}
+          />
+        </div>
       </Card>
 
       {/* Edit Modal */}

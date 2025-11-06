@@ -17,6 +17,7 @@ import RequiredRoute from "../RequiredRoute/RequiredRoute";
 import LoggedInRequiredRoute from "../LoggedInRequiredRoute/LoggedInRequiredRoute";
 import PaymentSuccess from "../page/PaymentSuccess/PaymentSuccess";
 import BookingManagement from "../dashboard/BookingManagement";
+import HotelList from "../page/Hotels/Hotels";
 export const router = createBrowserRouter([
   // Public routes
   {
@@ -43,7 +44,10 @@ export const router = createBrowserRouter([
     path: "/room",
     element: <Room />,
   },
-
+  {
+    path: "/hotels",
+    element: <HotelList />,
+  },
   {
     path: "/room/:id",
     element: <RoomDetail />,

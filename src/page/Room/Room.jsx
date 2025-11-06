@@ -18,6 +18,7 @@ import {
   InputNumber,
   message,
   Steps,
+  Pagination,
 } from "antd";
 import {
   SearchOutlined,
@@ -32,8 +33,6 @@ import BookingModal from "../../components/BookingModal";
 import RoomCard from "../../components/RoomCard";
 
 const { Title, Text, Paragraph } = Typography;
-const { RangePicker } = DatePicker;
-const { Step } = Steps;
 
 const Room = () => {
   const [searchParams] = useSearchParams();
@@ -71,7 +70,7 @@ const Room = () => {
     { name: "limit", value: limit },
     { name: "page", value: page },
   ]);
-
+console.log(data?.meta)
   const clearAllFilters = () => {
     setSearchTerm("");
     setGuestCount("");
@@ -101,7 +100,9 @@ const Room = () => {
     }
     navigate(`/room/${room?.id}`);
   };
-
+const onChange = (value) => {
+  console.log(value);
+};
   // Handle Book Now Click
   const handleBookNowClick = (room) => {
     if (!user) {
@@ -447,6 +448,14 @@ const Room = () => {
                 )}
               </Row>
             )}
+            <div className="mx-auto py-5 text-center flex justify-center">
+              <Pagination
+                current={page}
+                pageSize={limit}
+                total={data?.meta?.total}
+                onChange={(page) => setPage(page)}
+              />
+            </div>
           </Col>
         </Row>
 

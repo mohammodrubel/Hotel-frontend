@@ -12,6 +12,7 @@ import {
   Modal,
   Table,
   Space,
+  Pagination,
 } from "antd";
 import {
   LoadingOutlined,
@@ -37,6 +38,8 @@ function DashboardRooms() {
   const [editingRoom, setEditingRoom] = useState(null);
   const [updateRoom] = useUpdateRoomMutation();
   const [deleteRoom] = useDeleteRoomMutation();
+  const [limit,setLimit]=useState(10)
+  const [page,setPage]=useState(1)
 
   // Hotel data query
   const { data: hotelsData, isLoading: hotelsLoading } = useGetAllHotelQuery([
@@ -49,7 +52,7 @@ function DashboardRooms() {
       value: 1,
     },
   ]);
-
+console.log(hotelsData)
   // Rooms data query
   const {
     data: roomsData,
@@ -58,11 +61,11 @@ function DashboardRooms() {
   } = useGetAllRoomsQuery([
     {
       name: "limit",
-      value: 1000,
+      value: limit,
     },
     {
       name: "page",
-      value: 1,
+      value: page,
     },
   ]);
 
@@ -71,7 +74,7 @@ function DashboardRooms() {
     [];
 
   const rooms = roomsData?.data || [];
-  console.log(rooms)
+  console.log(roomsData?.meta)
   const onChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
   const onPreview = async (file) => {
@@ -301,21 +304,28 @@ function DashboardRooms() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-7xl mx-auto">
-
         {/* Rooms Table */}
         <div className="bg-white p-8 rounded-2xl shadow">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">All Rooms</h2>
-            
           </div>
           <Table
             columns={columns}
             dataSource={rooms}
             rowKey="id"
             loading={roomsLoading}
-            pagination={{ pageSize: 10 }}
+            pagination={false}
             scroll={{ x: 800 }}
           />
+          <div className="mx-auto py-5 text-center flex justify-center">
+            <Pagination
+              current={page}
+              pageSize={limit}
+              total={roomsData?.meta?.total}
+              onChange={(page) => setPage(page)}
+            />
+          
+          </div>
         </div>
       </div>
 
@@ -376,8 +386,6 @@ function DashboardRooms() {
                 />
               </Form.Item>
             </div>
-
-
 
             {/* Hotel Selection */}
             <Form.Item

@@ -28,7 +28,7 @@ import {
 } from "../redux/features/booking/bookingApi";
 
 const BookingManagement = () => {
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(3);
   const [page, setPage] = useState(1);
   // const [updateBookingStatus, { isLoading: isUpdating }] =
   //   useUpdateBookingStatusMutation();

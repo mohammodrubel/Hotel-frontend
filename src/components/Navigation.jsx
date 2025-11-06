@@ -21,11 +21,13 @@ const Navbar = () => {
     ? [
         { key: "rooms", label: "Rooms", href: "/room" },
         { key: "about", label: "About", href: "/about" },
+        { key: "Hotels", label: "Hotels", href: "/hotels" },
         { key: "logout", label: "Logout", action: handleLogout },
       ]
     : [
         { key: "rooms", label: "Rooms", href: "/room" },
         { key: "about", label: "About", href: "/about" },
+        { key: "Hotels", label: "Hotels", href: "/hotels" },
         { key: "login", label: "Login", href: "/login" },
       ];
 
