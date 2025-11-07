@@ -112,6 +112,16 @@ const Login = () => {
                 }}
               >
                 Sign up
+              </a> <br />
+              <a
+                href="/forgot-password"
+                className="text-blue-600 hover:underline font-medium"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/forgot-password");
+                }}
+              >
+                Forgot password?
               </a>
             </div>
           </Form>

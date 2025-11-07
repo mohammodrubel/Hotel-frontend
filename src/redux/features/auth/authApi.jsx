@@ -2,16 +2,17 @@ import { baseApi } from "../../api/baseApi";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    me: builder.query({
-      query: () => ({
-        url: `/auth/me`,
-        method: "GET",
+    ResetPassword: builder.mutation({
+      query: (data) => ({
+        url: `/auth/reset-password`,
+        method: "POST",
+        body: data,
       }),
     }),
-    changePassword: builder.mutation({
+    ForgotPassword: builder.mutation({
       query: (data) => ({
-        url: `/auth/change-password`,
-        method: "PATCH",
+        url: `/auth/forgot-password`,
+        method: "POST",
         body: data,
       }),
     }),
@@ -29,19 +30,12 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
-    logoutFromDb: builder.mutation({
-      query: () => ({
-        url: `/auth/logout`,
-        method: "POST",
-      }),
-    }),
   }),
 });
 
 export const {
-  useMeQuery,
-  useChangePasswordMutation,
   useLoginMutation,
-  useLogoutFromDbMutation,
   useRegisterMutation,
+  useResetPasswordMutation,
+  useForgotPasswordMutation
 } = authApi;

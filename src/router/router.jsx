@@ -18,6 +18,8 @@ import LoggedInRequiredRoute from "../LoggedInRequiredRoute/LoggedInRequiredRout
 import PaymentSuccess from "../page/PaymentSuccess/PaymentSuccess";
 import BookingManagement from "../dashboard/BookingManagement";
 import HotelList from "../page/Hotels/Hotels";
+import ForgotPassword from "../page/ForgotPassword/ForgotPassword";
+import ResetPassword from "../page/ResetPassword/ResetPassword";
 export const router = createBrowserRouter([
   // Public routes
   {
@@ -39,6 +41,14 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
   },
   {
     path: "/room",
