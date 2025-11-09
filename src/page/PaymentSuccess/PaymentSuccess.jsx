@@ -92,7 +92,7 @@ const PaymentSuccess = () => {
               type="primary"
               key="bookings"
               size="large"
-              onClick={() => navigate("/my-bookings")}
+              onClick={() => navigate("/my-booking")}
             >
               View My Bookings
             </Button>,
@@ -145,7 +145,7 @@ const PaymentSuccess = () => {
             >
               Try Again
             </Button>,
-            <Button key="support" onClick={() => navigate("/contact")}>
+            <Button key="support" onClick={() => navigate("/")}>
               Contact Support
             </Button>,
           ]}
