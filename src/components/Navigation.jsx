@@ -3,31 +3,42 @@ import { MenuOutlined } from "@ant-design/icons";
 import { Drawer, Button } from "antd";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../redux/features/auth/authSlice"; // adjust path if needed
+import { logout } from "../redux/features/auth/authSlice";
+import { useGetMyBookingQuery } from "../redux/features/booking/bookingApi";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const user = useSelector((state) => state?.auth?.user);
+  const { data } = useGetMyBookingQuery(undefined, { skip: !user });
 
-  // Logout handler
   const handleLogout = () => {
     dispatch(logout());
     setOpen(false);
   };
 
-  // Show different navs depending on login status
-  const navItems = user
-    ? [
-        { key: "rooms", label: "Rooms", href: "/room" },
-        { key: "Hotels", label: "Hotels", href: "/hotels" },
-        { key: "logout", label: "Logout", action: handleLogout },
-      ]
-    : [
-        { key: "rooms", label: "Rooms", href: "/room" },
-        { key: "Hotels", label: "Hotels", href: "/hotels" },
-        { key: "login", label: "Login", href: "/login" },
-      ];
+  const baseItems = [
+    { key: "rooms", label: "Rooms", href: "/room" },
+    { key: "hotels", label: "Hotels", href: "/hotels" },
+  ];
+
+  const authItems = [
+    ...baseItems,
+    { key: "my-booking", label: "My Booking", href: "/my-booking" }, // ✅ Always show
+    user?.role === "ADMIN" && {
+      key: "dashboard",
+      label: "Dashboard",
+      href: "/dashboard",
+    },
+    { key: "logout", label: "Logout", action: handleLogout },
+  ].filter(Boolean);
+
+  const guestItems = [
+    ...baseItems,
+    { key: "login", label: "Login", href: "/login" },
+  ];
+
+  const navItems = user ? authItems : guestItems;
 
   return (
     <nav className="w-full bg-white shadow-md fixed top-0 left-0 z-50">
@@ -72,10 +83,10 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Sidebar Drawer */}
+      {/* Mobile Drawer */}
       <Drawer
         title={
-          <span className="text-xl font-semibold text-blue-600">MyHotel</span>
+          <span className="text-xl font-semibold text-blue-600">LuxeStay</span>
         }
         placement="left"
         closable

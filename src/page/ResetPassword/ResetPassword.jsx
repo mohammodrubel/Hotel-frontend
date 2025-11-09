@@ -4,6 +4,8 @@ import { LockOutlined } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useResetPasswordMutation } from "../../redux/features/auth/authApi";
+import Navbar from "../../components/Navigation";
+import Footer from "../../components/Footer";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -61,90 +63,96 @@ const ResetPassword = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Reset Password
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Enter your new password below.
-          </p>
+    <>
+      <Navbar />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+              Reset Password
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Enter your new password below.
+            </p>
+          </div>
+
+          <Card className="mt-8">
+            <Form
+              form={form}
+              name="resetPassword"
+              layout="vertical"
+              onFinish={onFinish}
+              autoComplete="off"
+              size="large"
+              className="p-6"
+            >
+              <Form.Item
+                name="password"
+                label="New Password"
+                rules={passwordRules}
+                hasFeedback
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-gray-400" />}
+                  placeholder="Enter new password"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="confirmPassword"
+                label="Confirm New Password"
+                dependencies={["password"]}
+                hasFeedback
+                rules={[
+                  { required: true, message: "Please confirm your password!" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue("password") === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error("Passwords do not match!")
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-gray-400" />}
+                  placeholder="Confirm new password"
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="w-full h-12 text-lg font-semibold"
+                  loading={loading}
+                >
+                  {loading ? "Resetting Password..." : "Reset Password"}
+                </Button>
+              </Form.Item>
+
+              <div className="text-center text-sm text-gray-600">
+                Remember your password?{" "}
+                <a
+                  href="/login"
+                  className="text-blue-600 hover:underline font-medium"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate("/login");
+                  }}
+                >
+                  Sign in
+                </a>
+              </div>
+            </Form>
+          </Card>
         </div>
-
-        <Card className="mt-8">
-          <Form
-            form={form}
-            name="resetPassword"
-            layout="vertical"
-            onFinish={onFinish}
-            autoComplete="off"
-            size="large"
-            className="p-6"
-          >
-            <Form.Item
-              name="password"
-              label="New Password"
-              rules={passwordRules}
-              hasFeedback
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="Enter new password"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="confirmPassword"
-              label="Confirm New Password"
-              dependencies={["password"]}
-              hasFeedback
-              rules={[
-                { required: true, message: "Please confirm your password!" },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("password") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error("Passwords do not match!"));
-                  },
-                }),
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="Confirm new password"
-              />
-            </Form.Item>
-
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="w-full h-12 text-lg font-semibold"
-                loading={loading}
-              >
-                {loading ? "Resetting Password..." : "Reset Password"}
-              </Button>
-            </Form.Item>
-
-            <div className="text-center text-sm text-gray-600">
-              Remember your password?{" "}
-              <a
-                href="/login"
-                className="text-blue-600 hover:underline font-medium"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate("/login");
-                }}
-              >
-                Sign in
-              </a>
-            </div>
-          </Form>
-        </Card>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 

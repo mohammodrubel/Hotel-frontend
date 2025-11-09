@@ -18,7 +18,7 @@ export default function Footer() {
         <Row gutter={[32, 32]} className="mb-8">
           <Col xs={24} sm={12} md={6}>
             <h4 className="text-lg font-bold mb-4">LuxeStay</h4>
-            <p className="text-white/80 text-sm">
+            <p className=" text-sm">
               Your trusted partner for luxury hotel bookings worldwide.
             </p>
           </Col>

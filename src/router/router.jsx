@@ -20,6 +20,7 @@ import BookingManagement from "../dashboard/BookingManagement";
 import HotelList from "../page/Hotels/Hotels";
 import ForgotPassword from "../page/ForgotPassword/ForgotPassword";
 import ResetPassword from "../page/ResetPassword/ResetPassword";
+import MyBooking from "../page/MyBooking/MyBooking";
 export const router = createBrowserRouter([
   // Public routes
   {
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
   {
     path: "/payment/success",
     element: <PaymentSuccess />,
+  },
+  {
+    path: "/my-booking",
+    element: <MyBooking />,
   },
   {
     path: "/register",
