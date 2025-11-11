@@ -1,106 +1,131 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   Table,
   Tag,
   Space,
   Card,
   Pagination,
-  Dropdown,
   Button,
-  Menu,
   message,
   Modal,
+  Select,
+  Typography,
 } from "antd";
 import {
   UserOutlined,
   HomeOutlined,
   CalendarOutlined,
   DollarOutlined,
-  MoreOutlined,
   CheckOutlined,
   CloseOutlined,
   SyncOutlined,
-  ExclamationCircleOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import {
   useGetAllBookingQuery,
-  // useUpdateBookingStatusMutation,
+  useRemovebookingMutation,
+  useUpdateBookingStatusMutation,
 } from "../redux/features/booking/bookingApi";
+import { toast } from "sonner";
+
+const { Option } = Select;
+const { Text } = Typography;
+const { confirm } = Modal;
 
 const BookingManagement = () => {
-  const [limit, setLimit] = useState(3);
-  const [page, setPage] = useState(1);
-  // const [updateBookingStatus, { isLoading: isUpdating }] =
-  //   useUpdateBookingStatusMutation();
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isLoading, refetch } = useGetAllBookingQuery([
-    { name: "limit", value: limit },
-    { name: "page", value: page },
-  ]);
+  const queryParams = useMemo(
+    () => [
+      { name: "limit", value: pageSize },
+      { name: "page", value: currentPage },
+    ],
+    [pageSize, currentPage]
+  );
 
-  const bookings = data?.data?.data || [];
-  const meta = data?.data?.meta || {};
+  const {
+    data: bookingData,
+    isLoading,
+    refetch,
+  } = useGetAllBookingQuery(queryParams);
 
-  // Status configuration
-  const statusConfig = {
-    PENDING: { color: "orange", text: "Pending", icon: <SyncOutlined spin /> },
-    CONFIRMED: { color: "green", text: "Confirmed", icon: <CheckOutlined /> },
-    CANCELLED: { color: "red", text: "Cancelled", icon: <CloseOutlined /> },
-    FAILED: {
-      color: "volcano",
-      text: "Failed",
-      icon: <ExclamationCircleOutlined />,
-    },
+  const [removeBooking, { isLoading: isRemoving }] = useRemovebookingMutation();
+
+
+  const bookings = bookingData?.data?.data || [];
+  const meta = bookingData?.data?.meta || {};
+
+  const handleRemove = async (bookingId) => {
+    console.log(bookingId);
+    try {
+      const res = await removeBooking(bookingId.id).unwrap();
+      toast.success(res?.message || "Booking deleted successfully");
+      refetch();
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      toast.error(error?.data?.message || "Failed to delete booking");
+    }
   };
 
-  // Handle status update
-  // const handleStatusUpdate = async (bookingId, newStatus) => {
-  //   Modal.confirm({
-  //     title: "Confirm Status Update",
-  //     icon: <ExclamationCircleOutlined />,
-  //     content: `Are you sure you want to change the booking status to ${statusConfig[newStatus]?.text}?`,
-  //     okText: "Yes",
-  //     cancelText: "No",
-  //     onOk: async () => {
-  //       try {
-  //         await updateBookingStatus({
-  //           id: bookingId,
-  //           status: newStatus,
-  //         }).unwrap();
 
-  //         message.success(
-  //           `Booking status updated to ${statusConfig[newStatus]?.text}`
-  //         );
-  //         refetch(); // Refresh the data
-  //       } catch (error) {
-  //         message.error("Failed to update booking status");
-  //         console.error("Update error:", error);
-  //       }
-  //     },
-  //   });
-  // };
 
-  // Get available status options based on current status
-  const getStatusOptions = (currentStatus) => {
-    const allStatuses = ["PENDING", "CONFIRMED", "CANCELLED", "FAILED"];
+  const handleStatusChange = async (bookingId, newStatus) => {
+    try {
+      await updateBookingStatus({ id: bookingId, status: newStatus }).unwrap();
+      message.success("Booking status updated successfully");
+      refetch();
+    } catch (error) {
+      message.error(error?.data?.message || "Failed to update booking status");
+    }
+  };
 
-    // Filter out current status and return available options
-    return allStatuses.filter((status) => status !== currentStatus);
+  const getPaymentStatusTag = (payments) => {
+    if (!payments || payments.length === 0) {
+      return <Tag color="default">No Payment</Tag>;
+    }
+
+    const payment = payments[0];
+    const status = payment?.payment_status;
+
+    const statusConfig = {
+      PAID: { color: "green", icon: <CheckOutlined />, text: "Paid" },
+      PENDING: {
+        color: "orange",
+        icon: <SyncOutlined spin />,
+        text: "Pending",
+      },
+      FAILED: { color: "red", icon: <CloseOutlined />, text: "Failed" },
+    };
+
+    const config = statusConfig[status] || {
+      color: "default",
+      text: status || "Unknown",
+    };
+
+    return (
+      <Tag color={config.color} icon={config.icon}>
+        {config.text}
+      </Tag>
+    );
   };
 
   const columns = [
     {
-      title: "Guest",
+      title: "Guest Information",
       dataIndex: "user",
       key: "user",
-      width: 150,
+      width: 180,
+      fixed: "left",
       render: (user) => (
-        <Space direction="vertical" size={0}>
-          <div>
+        <Space direction="vertical" size={2}>
+          <div className="flex items-center">
             <UserOutlined style={{ marginRight: 8, color: "#1890ff" }} />
-            {user?.name}
+            <Text strong>{user?.name}</Text>
           </div>
-          <div style={{ fontSize: "12px", color: "#666" }}>{user?.email}</div>
+          <Text type="secondary" style={{ fontSize: "12px" }}>
+            {user?.email}
+          </Text>
         </Space>
       ),
     },
@@ -108,152 +133,108 @@ const BookingManagement = () => {
       title: "Hotel & Room",
       dataIndex: "room",
       key: "room",
-      width: 200,
+      width: 220,
       render: (room) => (
-        <Space direction="vertical" size={0}>
+        <Space direction="vertical" size={2}>
+          <Text strong>{room?.hotel?.name}</Text>
           <div>
-            {room?.hotel?.name}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666" }}>
-            {room?.type} • {room?.location}
+            <Text type="secondary" style={{ fontSize: "12px" }}>
+              {room?.type} • {room?.location}
+            </Text>
           </div>
         </Space>
       ),
     },
     {
-      title: "Dates",
-      dataIndex: "dates",
+      title: "Stay Duration",
       key: "dates",
-      width: 180,
+      width: 200,
       render: (_, record) => (
-        <Space direction="vertical" size={0}>
-          <div>
+        <Space direction="vertical" size={2}>
+          <div className="flex items-center">
             <CalendarOutlined style={{ marginRight: 8, color: "#fa8c16" }} />
-            {new Date(record.checkIn).toLocaleDateString()}
+            <Text>
+              Check-in: {new Date(record.checkIn).toLocaleDateString()}
+            </Text>
           </div>
-          <div style={{ fontSize: "12px", color: "#666" }}>
-            Check-out: {new Date(record.checkOut).toLocaleDateString()}
+          <div>
+            <Text
+              type="secondary"
+              style={{ fontSize: "12px", marginLeft: "24px" }}
+            >
+              Check-out: {new Date(record.checkOut).toLocaleDateString()}
+            </Text>
           </div>
         </Space>
       ),
     },
     {
-      title: "Duration",
-      dataIndex: "duration",
-      key: "duration",
-      width: 100,
-      render: (_, record) => {
-        const checkIn = new Date(record.checkIn);
-        const checkOut = new Date(record.checkOut);
-        const duration = Math.ceil(
-          (checkOut - checkIn) / (1000 * 60 * 60 * 24)
-        );
-        return `${duration} night${duration > 1 ? "s" : ""}`;
-      },
-    },
-    {
-      title: "Guests",
-      dataIndex: "guestCount",
-      key: "guestCount",
-      width: 80,
-      align: "center",
-    },
-    {
-      title: "Total Price",
+      title: "Total Amount",
       dataIndex: "totalPrice",
       key: "totalPrice",
-      width: 120,
+      width: 130,
+      align: "center",
       render: (price) => (
-        <div>
+        <div className="flex items-center justify-center">
           <DollarOutlined style={{ marginRight: 4, color: "#52c41a" }} />
-          {price?.toLocaleString()}
+          <Text strong>{price?.toLocaleString()}</Text>
         </div>
       ),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      width: 120,
-      render: (status) => {
-        const config = statusConfig[status] || {
-          color: "default",
-          text: status,
-          icon: <ExclamationCircleOutlined />,
-        };
-        return (
-          <Tag icon={config.icon} color={config.color}>
-            {config.text}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Payment",
+      title: "Payment Status",
       dataIndex: "payments",
       key: "payments",
-      width: 120,
-      render: (payments) => {
-        const paidPayment = payments?.find((p) => p.paymentStatus === "PAID");
-        return paidPayment ? (
-          <Tag color="green">Paid</Tag>
-        ) : (
-          <Tag color="red">Unpaid</Tag>
-        );
-      },
+      width: 140,
+      align: "center",
+      render: getPaymentStatusTag,
     },
+   
+    
     {
-      title: "Created Date",
+      title: "Booking Date",
       dataIndex: "createdAt",
       key: "createdAt",
       width: 120,
-      render: (date) => new Date(date).toLocaleDateString(),
-      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+      align: "center",
+      render: (date) => (
+        <Text type="secondary">{new Date(date).toLocaleDateString()}</Text>
+      ),
     },
     {
       title: "Actions",
       key: "actions",
-      width: 100,
       fixed: "right",
-      render: (_, record) => {
-        const availableStatuses = getStatusOptions(record.status);
-
-        const menu = (
-          <Menu>
-            {availableStatuses.map((status) => (
-              <Menu.Item
-                key={status}
-                // onClick={() => handleStatusUpdate(record.id, status)}
-                // disabled={isUpdating}
-              >
-                <Space>
-                  {statusConfig[status]?.icon}
-                  Change to {statusConfig[status]?.text}
-                </Space>
-              </Menu.Item>
-            ))}
-          </Menu>
-        );
-
-        return (
-          <Dropdown
-            overlay={menu}
-            placement="bottomRight"
-            trigger={["click"]}
-            // disabled={isUpdating}
-          >
-            <Button type="text" icon={<MoreOutlined />}  />
-          </Dropdown>
-        );
-      },
+      width: 100,
+      align: "center",
+      render: (_, record) => (
+        <Button
+          type="primary"
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => handleRemove(record)}
+          loading={isRemoving}
+          size="small"
+        >
+          Delete
+        </Button>
+      ),
     },
   ];
 
-  // Handle pagination change
-  const handlePageChange = (newPage, newPageSize) => {
-    setPage(newPage);
-    setLimit(newPageSize);
+  const handlePaginationChange = (page, pageSize) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
   };
+
+  const tableData = useMemo(
+    () =>
+      bookings.map((item) => ({
+        ...item,
+        key: item.id,
+      })),
+    [bookings]
+  );
 
   return (
     <div style={{ padding: 24 }}>
@@ -261,37 +242,44 @@ const BookingManagement = () => {
         title={
           <Space>
             <HomeOutlined />
-            Bookings Management
+            <Text strong>Booking Management</Text>
+            <Tag color="blue">Total: {meta.total || 0}</Tag>
           </Space>
+        }
+        extra={
+          <Button icon={<SyncOutlined />} onClick={refetch} loading={isLoading}>
+            Refresh
+          </Button>
         }
       >
         <Table
           columns={columns}
-          dataSource={bookings.map((item) => ({
-            ...item,
-            key: item.id,
-          }))}
+          dataSource={tableData}
           loading={isLoading}
-          scroll={{ x: 1500 }}
+          scroll={{ x: 1200 }}
           pagination={false}
           size="middle"
+          bordered
         />
 
-        <div className="flex justify-center my-10">
+        <div
+          style={{ display: "flex", justifyContent: "center", marginTop: 24 }}
+        >
           <Pagination
-            current={page}
-            pageSize={limit}
+            current={currentPage}
+            pageSize={pageSize}
             total={meta.total || 0}
             showSizeChanger
             showQuickJumper
             showTotal={(total, range) =>
               `Showing ${range[0]}-${range[1]} of ${total} bookings`
             }
-            onChange={handlePageChange}
+            onChange={handlePaginationChange}
             onShowSizeChange={(current, size) => {
-              setPage(1);
-              setLimit(size);
+              setCurrentPage(1);
+              setPageSize(size);
             }}
+            pageSizeOptions={[10, 20, 50, 100]}
           />
         </div>
       </Card>
