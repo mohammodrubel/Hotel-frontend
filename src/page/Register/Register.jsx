@@ -41,7 +41,7 @@ const Register = () => {
 
   return (
     <>
-    <Navbar/>
+      <Navbar />
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
@@ -79,6 +79,11 @@ const Register = () => {
                 rules={[
                   { required: true, message: "Please input your full name!" },
                   { min: 2, message: "Name must be at least 2 characters!" },
+                  {
+                    pattern: /^[A-Za-z\s]+$/,
+                    message:
+                      "Name can only contain uppercase and lowercase letters!",
+                  },
                 ]}
               >
                 <Input
@@ -167,7 +172,7 @@ const Register = () => {
           </Card>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 };
