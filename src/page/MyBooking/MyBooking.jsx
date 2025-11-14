@@ -11,6 +11,7 @@ import Footer from "../../components/Footer";
 import Navbar from "../../components/Navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { baseApi } from "../../redux/api/baseApi"; // ✅ make sure path is correct
+import { Link, Navigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -36,9 +37,7 @@ const MyBooking = () => {
     }
   }, [user, dispatch, refetch]);
 
-  const handleViewDetails = (booking) => {
-    console.log("View booking details:", booking);
-  };
+
 
   // Helpers
   const getRoomTypeColor = (type) =>
@@ -196,9 +195,8 @@ const MyBooking = () => {
           type="primary"
           icon={<EyeOutlined />}
           size="small"
-          onClick={() => handleViewDetails(record)}
         >
-          {screens.sm ? "View" : ""}
+          <Link to={`/room/${record?.room?.id}`}>View Room</Link> 
         </Button>
       ),
     },
